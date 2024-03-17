@@ -1,0 +1,9 @@
+.container{
+    display: flex;
+    height: 99vh;
+    justify-content: center;
+    align-items: center;
+    background: url("./pattern.svg");
+    background-size: cover;
+
+}

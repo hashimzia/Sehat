@@ -40,17 +40,50 @@
 :root{
     --main-color: #2D9596;
     --alternate-color: #265073;
-    --main-font: "Lexend", sans-serif;
+    --main-font: "Hanken Grotesk", sans-serif;
     --main-font-optical-sizing: auto;
     --main-font-style: normal;
+    --std-black: #333;
+    --std-white: #f5f5f5;
 }
 body{
     font-family: var(--main-font);
     font-size: var(--main-font-optical-sizing);
     font-style: var(--main-font-style);
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: var(--std-white);
+    color: var(--std-black);
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+h1{
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+h2{
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+h3{
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+h4{
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+h5{
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
 }

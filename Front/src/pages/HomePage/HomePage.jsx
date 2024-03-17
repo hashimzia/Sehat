@@ -1,12 +1,9 @@
-import "./HomePage.css"
-import { Button } from "@/components/ui/button";
+import styles from "./HomePage.module.css"
 
 
 function HomePage() {
     return (
-        <div className="HomePage">
-        <h1>Home Page</h1>
-        <Button>Click me</Button>
+        <div className={styles.container}>
         </div>
     )
 }
