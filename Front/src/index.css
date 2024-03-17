@@ -87,3 +87,34 @@ h5{
     margin: 0;
     padding: 0;
 }
+.std-input{
+    padding: 0.5rem;
+    border: 1px solid var(--std-black);
+    border-radius: var(--radius);
+    margin: 0.5rem;
+    width: 100%;
+    color: var(--std-black);
+    background-color: var(--std-white);
+}
+.std-button{
+    padding: 0.5rem;
+    border: 2px solid var(--main-color);
+    border-radius: var(--radius);
+    margin: 0.5rem;
+    width: 100%;
+    color: var(--std-white);
+    background-color: var(--main-color);
+    cursor: pointer;
+    font-weight: bold;
+    transition: ease-in-out 0.2s;
+}
+.std-button:hover{
+    background-color: var(--std-white);
+    color: var(--main-color);
+    border-color: var(--main-color);
+}
+.std-button:active{
+    background-color: var(--main-color);
+    color: var(--std-white);
+    border-color: var(--main-color);
+}
