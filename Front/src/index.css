@@ -1,0 +1,17 @@
+:root{
+    --main-color: #2D9596;
+    --alternate-color: #265073;
+    --main-font: "Lexend", sans-serif;
+    --main-font-optical-sizing: auto;
+    --main-font-style: normal;
+}
+body{
+    font-family: var(--main-font);
+    font-size: var(--main-font-optical-sizing);
+    font-style: var(--main-font-style);
+    background-color: #f5f5f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
