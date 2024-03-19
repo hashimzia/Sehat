@@ -44,7 +44,16 @@
     --main-font-optical-sizing: auto;
     --main-font-style: normal;
     --std-black: #333;
+    --std-gray: #666;
     --std-white: #f5f5f5;
+
+    --question-color-1: #2d9496;
+    --question-color-2: #2d6096;
+    --question-color-3: #2d9663;
+    --question-color-4: #962d60;
+    --question-color-5: #96632d;
+    --question-color-6: #492673;
+    --question-color-7: #507326;
 }
 body{
     font-family: var(--main-font);

@@ -1,7 +1,7 @@
-import React from "react"
+import React, { useRef, useEffect, useState} from "react"
 import styles from "./AppointmentBookingPage.module.css"
 import { Calendar } from "@/components/ui/calendar"
-
+import '../../index.css'
 
 const slots = [
     {text: "9:00 AM"},
@@ -15,6 +15,78 @@ const slots = [
 
 
 function AppointmentBookingPage(){
+
+    const [questionIndex, setQuestionIndex] = React.useState(0)
+    const [reason, setReason] = React.useState("")
+    const [location, setLocation] = React.useState("")
+    const [speciality, setSpeciality] = React.useState("")
+    const [time, setTime] = React.useState("")
+
+    const questions = [
+        {prompt: "What is the reason for your visit?", setAnswer: setReason},
+        {prompt: "Where would you like to have your appointment?", setAnswer: setLocation},
+        {prompt: "What is your speciality?", setAnswer: setSpeciality},
+        {prompt: "What time would you like to have your appointment?", setAnswer: setTime},
+    ]
+
+    const handleKeyDown = (event) => {
+        if (event.key === "Enter"){
+            setQuestionIndex((prevIndex) => prevIndex + 1)
+        }
+    }
+
+
+    return (
+        <>
+            <div className={styles.wrapper} onKeyDown={handleKeyDown}>
+                <Question prompt={questions[questionIndex].prompt} setAnswer={questions[questionIndex].setAnswer} />
+            
+            </div>
+        </>
+    )
+}
+
+
+function Question({ prompt, setAnswer }) {
+    const inputRef = useRef();
+    useEffect(() => {
+        inputRef.current.focus();
+    }, []);
+
+    // Define the array of background colors
+    const bgColors = [
+        "var(--question-color-1)",
+        "var(--question-color-2)",
+        "var(--question-color-3)",
+        "var(--question-color-4)",
+        "var(--question-color-5)",
+        "var(--question-color-6)",
+        "var(--question-color-7)"
+    ];
+
+    // State to hold the random background color
+    const [randomColor] = useState(() => {
+        // Initialize with a random color
+        return bgColors[Math.floor(Math.random() * bgColors.length)];
+    });
+
+    return (
+        <div className={styles.question} style={{ backgroundColor: randomColor }}>
+            <div className={styles.questionWrapper}>
+                <span className={styles.prompt}>{prompt}</span>
+                <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder="Type here"
+                    className={styles.input}
+                    onChange={(e) => setAnswer(e.target.value)}>
+                </input>
+            </div>
+        </div>
+    );
+}
+
+function DateSlotInput(){
     const [date, setDate] = React.useState(new Date())
 
     return (
