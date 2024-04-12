@@ -1,9 +1,9 @@
 import { config } from "dotenv";
-import { Timestamp } from "mongodb";
 config();
 import mongoose from 'mongoose';
 
 const dbConnection = mongoose
+    .connect(process.env.MONGO_URI, {
     })
     .then(() => console.log('MongoDB database Connected '))
     .catch((err) => console.log(err))

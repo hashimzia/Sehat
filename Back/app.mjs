@@ -69,6 +69,8 @@ app.post('/api/addReview', async (req,res) => {
         upsert: true    // if the provider does not exist, create a new object 
         });
     
+    
+    // consider adding rating to the healthproviders collection
     if (updateResult["acknowledged"] !== true){
       res.status(500).send("Error ocuured while updating healthprovidersratings")
     }
@@ -76,3 +78,34 @@ app.post('/api/addReview', async (req,res) => {
       res.status(200).send("Review added successfully");
     }
 })
+app.get('/api/getReviews', async (req, res) =>{
+
+    // get all reviews for a given provider_id
+    const provider_id = req.query.provider_id;
+    let reviews;
+    let ratings;
+    try{
+      reviews = await Reviews.find({provider_id: provider_id});
+    }
+    catch(err){
+      console.error(err);
+      res.status(500).send("Error ocuured while fetching reviews")
+    }
+
+    // get the total rating and total reviews for the given provider_id
+    try{
+      ratings = await HealthProvidersRatings.findOne({provider_id: provider_id});
+    }
+    catch(err){
+      console.error(err);
+      res.status(500).send("Error ocuured while fetching healthprovidersratings")
+    }
+
+    ratings.set("average_rating", ratings["total_rating"] / ratings["total_reviews"], {strict: false});
+
+    let returnObject = {
+      "reviews": reviews,
+      "ratings": ratings
+    } 
+    res.status(200).send(returnObject);
+});
