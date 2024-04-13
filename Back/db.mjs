@@ -35,6 +35,7 @@ const Reviews = new mongoose.Schema({
     patient_id: String,
     review: String,
     rating: Number,
+    is_anonymous: Boolean,
     timestamp: { type: Date, default: Date.now },
 });
 mongoose.model('reviews', Reviews);
@@ -46,5 +47,19 @@ const HealthProvidersRatings = new mongoose.Schema({
 })
 mongoose.model('healthprovidersratings', HealthProvidersRatings);
 
+const HealthProvidersSchedule = new mongoose.Schema({
+    provider_id: String,
+    weekday_availability: {
+        Monday: Array,
+        Tuesday: Array,
+        Wednesday: Array,
+        Thursday: Array,
+        Friday: Array,
+        Saturday: Array,
+        Sunday: Array   
+    },
+    slot_duration_minutes: Number,
+})
+mongoose.model('healthprovidersschedule', HealthProvidersSchedule);
 
 export default dbConnection;

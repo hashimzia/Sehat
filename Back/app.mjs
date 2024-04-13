@@ -6,23 +6,25 @@ import './db.mjs';
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 const port = 3000;
 
 // maintain case sensitivity, PascalCase for identifiers, lowercase ONLY for collection names
 const HealthProviders = mongoose.model('healthproviders');
 const Reviews = mongoose.model('reviews');
 const HealthProvidersRatings = mongoose.model('healthprovidersratings');
+const HealthProvidersSchedule = mongoose.model('healthprovidersschedule');
+
 
 console.log(mongoose.connection.readyState);
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
 
 app.listen(port, () => {
   console.log(`backend listening on port ${port}`)
 })
 
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
 // full-text search as defined in db.mjs text index
 app.get('/api/searchHealthProviders', async (req, res) => {
 
@@ -109,3 +111,30 @@ app.get('/api/getReviews', async (req, res) =>{
     } 
     res.status(200).send(returnObject);
 });
+
+// Routes for scheduling appointments
+// set provider availability by weekday
+app.post('/api/setProviderAvailabilityByWeekday', async (req, res) => {
+  
+  const data = req.body;
+
+  // check if the provider already exists in the healthprovidersschedule collection
+  let updateResult = await HealthProvidersSchedule.updateOne(
+    { provider_id: data.provider_id }, // find the provider with the given provider_id
+    {
+      $set: {
+        weekday_availability: data.weekday_availability,
+        slot_duration_minutes: data.slot_duration_minutes
+      }
+    },
+    { upsert: true } // if the provider does not exist, create a new object 
+  );
+
+  if (updateResult["acknowledged"] !== true){
+    res.status(500).send("Error ocuured while updating healthprovidersschedule")
+  }
+  else{
+    res.status(200).send("Provider availability set successfully");
+  }
+})
+
