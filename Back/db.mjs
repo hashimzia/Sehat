@@ -62,4 +62,13 @@ const HealthProvidersSchedule = new mongoose.Schema({
 })
 mongoose.model('healthprovidersschedule', HealthProvidersSchedule);
 
+const BookedSlots = new mongoose.Schema({
+    provider_id: String,
+    patient_id: String,
+    date: Date,
+    start_time: String,
+    end_time: String,
+    slot_duration_minutes: Number,
+});
+
 export default dbConnection;

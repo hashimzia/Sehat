@@ -25,5 +25,23 @@
         <input type="submit" value="Submit">
     </form>
 
+
+    <div style="border: 2px solid red">
+        <button type="button" onclick="getSchedule()">Get schedule</button>
+    </div>
+
 </body>
+
+<script>
+    function getSchedule(){
+        console.log("Getting schedule");
+        let data = fetch("http://localhost:3000/api/getProviderAvailability?provider_id=01HV9GW3KFYY0V0FB1BR44ACCJ")
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.log(error));
+    }
+
+</script>
+
+
 </html>

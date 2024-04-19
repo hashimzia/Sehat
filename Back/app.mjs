@@ -1,12 +1,25 @@
 import express from 'express';
+import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
+import { ExpressHandlebars } from 'express-handlebars';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import url from 'url';
+
 import './config.mjs';
 import './db.mjs';
 
 const app = express();
+const exhbs = new ExpressHandlebars({ defaultLayout: 'main', extname: '.hbs' });
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.engine('hbs', exhbs.engine);
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.set('view engine', 'hbs');  // set the view engine to handlebars
 const port = 3000;
 
 // maintain case sensitivity, PascalCase for identifiers, lowercase ONLY for collection names
@@ -114,7 +127,7 @@ app.get('/api/getReviews', async (req, res) =>{
 
 // Routes for scheduling appointments
 // set provider availability by weekday
-app.post('/api/setProviderAvailabilityByWeekday', async (req, res) => {
+app.post('/api/setProviderAvailability', async (req, res) => {
   
   const data = req.body;
 
@@ -137,4 +150,25 @@ app.post('/api/setProviderAvailabilityByWeekday', async (req, res) => {
     res.status(200).send("Provider availability set successfully");
   }
 })
+app.get('/api/getProviderAvailability', async (req, res) => {
+  const provider_id = req.query.provider_id;
 
+  let availability;
+  try{
+    availability = await HealthProvidersSchedule.findOne({provider_id: provider_id});
+  }
+  catch(err){
+    console.error(err);
+    res.status(500).send("Error ocuured while fetching healthprovidersschedule")
+  }
+
+  res.status(200).send(availability);
+})
+app.get('/api/getProviderAvailabilityByDay', async (req, res) => {
+  
+})
+
+// homepage
+app.get('/home', (req, res) => {
+  res.render('home');
+})
