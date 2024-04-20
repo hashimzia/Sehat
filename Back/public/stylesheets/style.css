@@ -58,6 +58,18 @@
     --opacity-9: rgba(255, 255, 255, 0.875);
     --opacity-10: rgba(255, 255, 255, 0.9375);
 
+
+    --opacity-black-0: rgba(0, 0, 0, 0.0);
+    --opacity-black-1: rgba(0, 0, 0, 0.01);
+    --opacity-black-2: rgba(0, 0, 0, 0.02);
+    --opacity-black-3: rgba(0, 0, 0, 0.03);
+    --opacity-black-4: rgba(0, 0, 0, 0.04);
+    --opacity-black-5: rgba(0, 0, 0, 0.05);
+    --opacity-black-6: rgba(0, 0, 0, 0.06);
+    --opacity-black-7: rgba(0, 0, 0, 0.07);
+    --opacity-black-8: rgba(0, 0, 0, 0.08);
+    --opacity-black-9: rgba(0, 0, 0, 0.09);
+    --opacity-black-10: rgba(0, 0, 0, 0.1);
 }
 body{
     font-family: var(--main-font);
@@ -133,7 +145,7 @@ h5{
 .page-container{
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
     min-height: 100vh;
 }

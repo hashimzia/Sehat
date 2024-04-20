@@ -1,0 +1,94 @@
+<script>
+    async function search(){
+        let query = document.querySelector('input[type="search"]').value;
+        // convert the query to a url encoded string
+        query = encodeURIComponent(query);
+        console.log(query);
+        const response = await fetch(`/api/searchHealthProviders?query=${query}`);
+        const providers = await response.json();
+        console.log(providers);
+        // render the providers
+        let html = '';
+        providers.forEach(provider => {
+            console.log(provider);            
+            
+            html += `
+                <div class="provider">
+                    <h2>${provider.first_name}</h2>
+                    <p>${provider.specialty}</p>
+                    <p>${provider.city}</p>
+                    <p>${provider.years_of_experience}</p>
+                </div>
+            `;
+        });
+        document.querySelector('.search-results').innerHTML = html;
+    }
+    // wait for the page to load
+    document.addEventListener('DOMContentLoaded', function(){
+        // listen for the enter key press
+        document.querySelector('input[type="search"]').addEventListener('keypress', function(e){
+            if(e.key === 'Enter'){
+                search();
+            }
+        });
+    });    
+</script>
+<div class="page-container search-page">
+    <h1>Search</h1>
+    <div style="display: flex; flex-direction: row; width:100%; gap: var(--size-3);">
+        <input type="search" name="search" id="" placeholder="Search for Healthcare providers by speciality, ... other terms in full text search">
+        <button type="button" class="search-button" onclick="search()">Search</button>
+    </div>
+    <div class="search-results">
+        <!-- search results will be rendered here -->
+    </div>
+</div>
+<style>
+.search-page{
+    padding: var(--size-6);
+    box-sizing: border-box;
+}
+h1{
+    color: var(--main-color);
+}
+input[type="search"]{
+    width: 50%;
+    min-width: var(--size-14);
+    height: var(--size-6-2-5);
+    padding: var(--size-1) var(--size-3);
+    margin: var(--size-2) 0;
+    border-radius: var(--size-1);
+    outline: none;
+    border: none;
+    background-color: var(--opacity-black-3);
+}
+input[type="search"]:focus{
+    outline: none;
+    border: none;
+}
+input[type="search"]::placeholder{
+    color: black;
+    font-weight: 500;
+}
+.search-button{
+    background-color: var(--main-color);
+    color: white;
+    padding: var(--size-1) var(--size-4);
+    border-radius: var(--size-1);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: var(--size-4);
+    margin: var(--size-2) 0;
+}
+.provider{
+    background-color: var(--opacity-black-3);
+    min-width: var(--size-13);
+    padding: var(--size-4);
+    border-radius: var(--size-1);
+}
+
+
+
+</style>

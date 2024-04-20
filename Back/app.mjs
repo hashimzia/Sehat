@@ -20,7 +20,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('view engine', 'hbs');  // set the view engine to handlebars
-const port = 3000;
+const port = 5173;
 
 // maintain case sensitivity, PascalCase for identifiers, lowercase ONLY for collection names
 const HealthProviders = mongoose.model('healthproviders');
@@ -44,13 +44,16 @@ app.get('/login', (req, res) => {
 app.get('/appointment-booking', (req, res) => {
   res.render('appointment-booking');
 })
+app.get('/search', (req, res) => {
+  res.render('search');
+})
 
 // full-text search as defined in db.mjs text index
 app.get('/api/searchHealthProviders', async (req, res) => {
 
-    let searchQuery = req.query;
+    let searchQuery = req.query.query;
     let answer = await HealthProviders.find({ $text: { $search: searchQuery } });
-    res.send(answer);
+    res.status(200).send(answer);
 })
 
 // a review is added to the reviews collection with two identifiers: provider_id and patient_id
