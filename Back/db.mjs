@@ -10,6 +10,7 @@ const dbConnection = mongoose
 
 
 const HealthProviders = new mongoose.Schema({
+    // wo bhi kya din the jab humne yeh schema banaya tha
     provider_id: String,
     first_name: String,
     last_name: String,

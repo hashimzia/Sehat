@@ -16,32 +16,38 @@ const slots = [
 
 function AppointmentBookingPage(){
 
-    const [questionIndex, setQuestionIndex] = React.useState(0)
-    const [reason, setReason] = React.useState("")
-    const [location, setLocation] = React.useState("")
-    const [speciality, setSpeciality] = React.useState("")
-    const [time, setTime] = React.useState("")
+    // const [questionIndex, setQuestionIndex] = React.useState(0)
+    // const [reason, setReason] = React.useState("")
+    // const [location, setLocation] = React.useState("")
+    // const [speciality, setSpeciality] = React.useState("")
+    // const [time, setTime] = React.useState("")
 
-    const questions = [
-        {prompt: "What is the reason for your visit?", setAnswer: setReason},
-        {prompt: "Where would you like to have your appointment?", setAnswer: setLocation},
-        {prompt: "What is your speciality?", setAnswer: setSpeciality},
-        {prompt: "What time would you like to have your appointment?", setAnswer: setTime},
-    ]
+    // const questions = [
+    //     {prompt: "What is the reason for your visit?", setAnswer: setReason},
+    //     {prompt: "Where would you like to have your appointment?", setAnswer: setLocation},
+    //     {prompt: "What is your speciality?", setAnswer: setSpeciality},
+    //     {prompt: "What time would you like to have your appointment?", setAnswer: setTime},
+    // ]
 
-    const handleKeyDown = (event) => {
-        if (event.key === "Enter"){
-            setQuestionIndex((prevIndex) => prevIndex + 1)
-        }
-    }
+    // const handleKeyDown = (event) => {
+    //     if (event.key === "Enter"){
+    //         setQuestionIndex((prevIndex) => prevIndex + 1)
+    //     }
+    // }
 
+
+    // return (
+    //     <>
+    //         <div className={styles.wrapper} onKeyDown={handleKeyDown}>
+    //             <Question prompt={questions[questionIndex].prompt} setAnswer={questions[questionIndex].setAnswer} />
+            
+    //         </div>
+    //     </>
+    // )
 
     return (
         <>
-            <div className={styles.wrapper} onKeyDown={handleKeyDown}>
-                <Question prompt={questions[questionIndex].prompt} setAnswer={questions[questionIndex].setAnswer} />
-            
-            </div>
+        <DateSlotInput/>
         </>
     )
 }
