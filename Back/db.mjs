@@ -72,4 +72,19 @@ const BookedSlots = new mongoose.Schema({
     slot_duration_minutes: Number,
 });
 
+const PrescriptionSchema = new mongoose.Schema({
+    provider_id: String,
+    patient_id: String,
+    medication: [{
+        name: String,
+        dosage: String,
+        frequency: String,
+        duration: String
+    }],
+    prescription_date: { type: Date, default: Date.now },
+    instructions: String
+});
+mongoose.model('prescriptions', PrescriptionSchema);
+
+
 export default dbConnection;

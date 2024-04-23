@@ -1,4 +1,43 @@
-<div class="page-container login-page">
+<div id="app"></div>
+<script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_dGhvcm91Z2gtc3dhbi0xNy5jbGVyay5hY2NvdW50cy5kZXYk"
+  src="https://thorough-swan-17.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
+  type="text/javascript">
+</script>
+<script>
+  window.addEventListener("load", async function () {
+    await Clerk.load();
+ 
+    // Check if a user is already signed in
+    if (Clerk.user) {
+      // If a user is signed in, redirect to the dashboard or relevant page
+      Clerk.navigate('/home'); 
+
+      document.getElementById("app").innerHTML = `
+        <div id="user-button"></div>
+      `;
+ 
+      const userButtonDiv = document.getElementById("user-button");
+      Clerk.mountUserButton(userButtonDiv);
+    } else {
+      document.getElementById("app").innerHTML = `
+        <div id="sign-in"></div>
+      `;
+ 
+      const signInDiv = document.getElementById("sign-in");
+ 
+      // Mount the sign-in component and specify redirection after sign-in
+      Clerk.mountSignIn(signInDiv, {
+        afterSignIn: () => Clerk.navigate('/home') // Redirect after successful sign-in
+      });
+    }
+  });
+</script>
+
+
+{{!-- <div class="page-container login-page">
     <div class="container">
         <div class="left">
             <h1 class="branding">Sehat</h1>
@@ -64,4 +103,4 @@
     justify-self: center;
     gap: 0.5rem;
 }
-</style>
+</style> --}}
