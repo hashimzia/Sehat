@@ -1,4 +1,36 @@
-<div class="page-container login-page">
+<div id="app"></div>
+<script>
+  window.addEventListener("load", async function () {
+    await Clerk.load();
+ 
+    // Check if a user is already signed in
+    if (Clerk.user) {
+      // If a user is signed in, redirect to the dashboard or relevant page
+      Clerk.navigate('/home'); 
+
+      document.getElementById("app").innerHTML = `
+        <div id="user-button"></div>
+      `;
+ 
+      const userButtonDiv = document.getElementById("user-button");
+      Clerk.mountUserButton(userButtonDiv);
+    } else {
+      document.getElementById("app").innerHTML = `
+        <div id="sign-in"></div>
+      `;
+ 
+      const signInDiv = document.getElementById("sign-in");
+ 
+      // Mount the sign-in component and specify redirection after sign-in
+      Clerk.mountSignIn(signInDiv, {
+        afterSignIn: () => Clerk.navigate('/home') // Redirect after successful sign-in
+      });
+    }
+  });
+</script>
+
+
+{{!-- <div class="page-container login-page">
     <div class="container">
         <div class="left">
             <h1 class="branding">Sehat</h1>
@@ -64,4 +96,4 @@
     justify-self: center;
     gap: 0.5rem;
 }
-</style>
+</style> --}}

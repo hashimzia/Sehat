@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            margin: 0;
+            background: #f4f4f8; /* Slight background color for better contrast */
+        }
+        .page-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: #fff;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], textarea {
+            width: 100%; /* Ensure full width within the form container */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        form {
+            width:90%;
+        }
+        textarea {
+            height: 300px; /* Increased height */
+        }
+        .submit-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container provider-dashboard">
+        <h1>Create Prescription</h1>
+        <form id="prescription-form">
+            <input type="hidden" name="provider_id" value="{{providerId}}">
+            <div class="form-group">
+                <label for="patient_id">Patient ID:</label>
+                <input type="text" id="patient_id" name="patient_id" required>
+            </div>
+            <div class="form-group">
+                <label for="prescription">Prescription:</label>
+                <textarea id="prescription" name="prescription" required></textarea>
+            </div>
+            <button type="button" class="submit-button" onclick="submitPrescription()">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        async function submitPrescription() {
+            const formElement = document.getElementById('prescription-form');
+            const formData = new FormData(formElement);
+            const formProps = Object.fromEntries(formData);
+            const response = await fetch('/api/createPrescription', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formProps)
+            });
+
+            if (response.ok) {
+                alert('Prescription created successfully!');
+                formElement.reset();
+            } else {
+                alert('Failed to create prescription.');
+            }
+            
+        }
+        const prescription = document.getElementById('prescription');
+        prescription.value=`Doctor Name:\nDate:\nTime:\nPatient Name:\nAge:`
+    </script>
+</body>
+</html>
