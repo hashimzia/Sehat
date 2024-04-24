@@ -10,6 +10,7 @@ const dbConnection = mongoose
 
 
 const HealthProviders = new mongoose.Schema({
+    // wo bhi kya din the jab humne yeh schema banaya tha
     provider_id: String,
     first_name: String,
     last_name: String,
@@ -70,5 +71,33 @@ const BookedSlots = new mongoose.Schema({
     end_time: String,
     slot_duration_minutes: Number,
 });
+
+const PrescriptionSchema = new mongoose.Schema({
+    provider_id: String,
+    patient_id: String,
+    medication: [{
+        name: String,
+        dosage: String,
+        frequency: String,
+        duration: String
+    }],
+    prescription_date: { type: Date, default: Date.now },
+    instructions: String
+});
+mongoose.model('prescriptions', PrescriptionSchema);
+
+const PatientSchema = new mongoose.Schema({
+    patient_id: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    dob: { type: Date, required: true },
+    height: { type: Number, required: true },
+    blood_group: { type: String, required: true },
+    gender: { type: String, required: true },
+});
+
+// Register the Patient model with Mongoose
+mongoose.model('patients', PatientSchema);
+
 
 export default dbConnection;

@@ -9,16 +9,66 @@ import url from 'url';
 
 import './config.mjs';
 import './db.mjs';
+// import session from 'express-session';
 
+import { config} from 'dotenv';
+import { clerkClient } from '@clerk/clerk-sdk-node';
+import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
+config()
+clerkClient
+
+// import Cookies from 'cookies';
+console.log()
 const app = express();
 const exhbs = new ExpressHandlebars({ defaultLayout: 'main', extname: '.hbs' });
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+// function loginCheck(req, res, next) {
+//   if (req.path === '/login') {
+//       if (ClerkExpressWithAuth()){
+//         res.redirect('/home')
+//       }
+//       next();
+//   } else {
+//       if (ClerkExpressWithAuth()){
+//         res.redirect('/login')
+//       }
+//       else{
+//       next();
+//     }
+//   }
+// }
+
+
+
+
+// app.use(loginCheck)
 app.engine('hbs', exhbs.engine);
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(ClerkExpressWithAuth())
+
+// Configure session middleware
+// app.use(session({
+//   secret: 'your_secret_key', // Replace 'your_secret_key' with a real secret string
+//   resave: false,
+//   saveUninitialized: false, // Change to true if you want to save session before anything is assigned to it
+//   cookie: { secure: false } // Set to true if using https
+// }));
+
+// //Clerk
+// import Clerk from "@clerk/clerk-js";
+
+// // Initialize Clerk on the backend
+// const clerk = new Clerk(process.env.CLERK_SECRET_KEY);
+
+// // Now you can use `clerk` to manage sessions, authenticate users, etc.
+// app.use(clerk.expressWithSession());
+
+
 app.set('view engine', 'hbs');  // set the view engine to handlebars
 const port = 5173;
 
@@ -47,6 +97,18 @@ app.get('/appointment-booking', (req, res) => {
 app.get('/search', (req, res) => {
   res.render('search');
 })
+app.get('/doctor-onboarding', (req, res) => {
+  res.render('doctor-onboarding');
+})
+app.get('/doctor-dashboard', (req, res) => {
+  res.render('doctor-dashboard');
+})
+app.get('/create-prescriptions', (req, res) => {
+  res.render('create-prescriptions');
+})
+app.get('/patient-onboarding', (req, res) => {
+  res.render('patient-onboarding');
+})
 
 // full-text search as defined in db.mjs text index
 app.get('/api/searchHealthProviders', async (req, res) => {
@@ -55,6 +117,23 @@ app.get('/api/searchHealthProviders', async (req, res) => {
     let answer = await HealthProviders.find({ $text: { $search: searchQuery } });
     res.status(200).send(answer);
 })
+
+app.get('/api/verify-doctor', async (req, res) => {
+  const { doctorId } = req.query; // Get doctorId from query parameters
+
+  try {
+      const doctor = await HealthProviders.findOne({ provider_id: doctorId });
+      if (doctor) {
+          res.json({ success: true, message: 'Doctor verified successfully.' });
+      } else {
+          res.status(404).json({ success: false, message: 'Doctor ID not found.' });
+      }
+  } catch (error) {
+      console.error('Database error:', error);
+      res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
 
 // a review is added to the reviews collection with two identifiers: provider_id and patient_id
 // total rating and total reviews are updated in the healthprovidersratings collection
@@ -177,6 +256,141 @@ app.get('/api/getProviderAvailability', async (req, res) => {
 app.get('/api/getProviderAvailabilityByDay', async (req, res) => {
   
 })
+
+// Existing route that should handle patient ID passed as query parameter
+app.get('/patient-dashboard', async (req, res) => {
+  console.log(req.auth.userId)
+  const patientId = req.auth.userId; // Correctly capture the patientId from query parameters
+  if (!patientId) {
+      // If no patientId is provided, render a prompt page or handle the error
+      return res.render('patient-id-prompt');
+  }
+
+  console.log('Fetching prescriptions for patient ID:', patientId);
+  const Prescription = mongoose.model('prescriptions');
+
+  try {
+      const prescriptions = await Prescription.find({ patient_id: patientId }).lean();
+      res.render('patient-dashboard', { prescriptions });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send("Error occurred while fetching prescriptions");
+  }
+});
+
+
+// Serve the specific prescriptions once the patient ID is known
+app.get('/patient-dashboard/:patientId', async (req, res) => {
+  const { patientId } = req.params;
+  console.log('Fetching prescriptions for patient ID:', patientId);
+  const Prescription = mongoose.model('prescriptions');
+
+  try {
+      const prescriptions = await Prescription.find({ patient_id: patientId }).lean();
+      res.render('patient-dashboard', { prescriptions });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send("Error occurred while fetching prescriptions");
+  }
+});
+
+
+
+// POST endpoint to create a new prescription
+app.post('/api/createPrescription', async (req, res) => {
+  const {
+      provider_id,
+      patient_id,
+      medication_name,
+      dosage,
+      frequency,
+      duration,
+      instructions
+  } = req.body;
+
+  // Construct medication array from the flat structure
+  const medication = [{
+      name: medication_name,
+      dosage: dosage,
+      frequency: frequency,
+      duration: duration
+  }];
+
+
+  const newPrescription = new mongoose.model('prescriptions')({
+      provider_id,
+      patient_id,
+      medication,  // this now matches the expected array structure
+      instructions
+  });
+
+  try {
+      const savedPrescription = await newPrescription.save();
+      console.log('Saved Prescription:', savedPrescription); // Log the saved prescription
+      res.status(200).send({ message: 'Prescription saved successfully', prescriptionId: savedPrescription._id });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send("Error occurred while saving the prescription");
+  }
+});
+
+
+app.post('/api/register-patient', async (req, res) => {
+  try {
+      const { patient_id, name, email, dob, height, blood_group, gender } = req.body;
+      const Patient = mongoose.model('patients');
+      const newPatient = new Patient({
+          patient_id,
+          name,
+          email,
+          dob: new Date(dob), // Ensure the date is correctly formatted
+          height,
+          blood_group,
+          gender
+      });
+
+      await newPatient.save(); // Save the new patient to the database
+      res.status(201).send({ message: 'Patient registered successfully', patientId: newPatient._id });
+  } catch (error) {
+      console.error('Error registering patient:', error);
+      res.status(500).send({ message: 'Failed to register patient', error: error.message });
+  }
+});
+
+app.get('/api/check-patient', async (req, res) => {
+  const  patientId  = req.query.patientId;
+  const Patient = mongoose.model('patients');
+  try {
+      const patient = await Patient.findOne({ patient_id: patientId });
+      if (patient) {
+          res.json({ exists: true });
+      } else {
+          res.json({ exists: false });
+      }
+  } catch (error) {
+      console.error('Error finding patient:', error);
+      res.status(500).send({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+// GET endpoint for a patient to view their prescriptions
+app.get('/api/viewPrescriptions/:patientId', async (req, res) => {
+  const { patientId } = req.params;
+  console.log(patientId);
+  const Prescription = mongoose.model('prescriptions');
+
+  try {
+      const prescriptions = await Prescription.find({ patient_id: patientId });
+      res.status(200).send(prescriptions);
+  } catch (err) {
+      console.error(err);
+      res.status(500).send("Error occurred while fetching prescriptions");
+  }
+});
+
 
 // homepage
 app.get('/home', (req, res) => {
