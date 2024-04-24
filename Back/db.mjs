@@ -71,6 +71,7 @@ const BookedSlots = new mongoose.Schema({
     end_time: String,
     slot_duration_minutes: Number,
 });
+mongoose.model('bookedslots', BookedSlots);
 
 const PrescriptionSchema = new mongoose.Schema({
     provider_id: String,

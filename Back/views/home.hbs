@@ -1,3 +1,65 @@
+
+<style>
+h1{
+    color: var(--main-color);
+    font-size: var(--size-8);
+}
+nav{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--size-6);
+    gap: var(--size-7);
+    background-color: var(--main-color);
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: var(--size-2);
+    border-bottom-right-radius: var(--size-8);
+}
+a{
+    color: var(--white);
+    text-decoration: none;
+    font-size: var(--size-4-5);
+    font-weight: 600;
+    transition: ease-in-out 0.3s;
+}
+a:hover{
+    transition: ease-in-out 0.3s;
+    scale: 1.05;
+}
+a:hover:nth-child(odd){
+    transform: rotate(2deg);
+}
+a:hover:nth-child(even){
+    transform: rotate(-2deg);
+}
+footer{
+    border-top-left-radius: var(--size-8);
+    margin-top: auto;
+    padding: var(--size-6);
+    background-color: var(--alternate-color);
+    color: var(--white);
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-section {
+    flex: 1;
+}
+.footer-section ul {
+    list-style-type: none;
+}
+.footer-bottom {
+    text-align: center;
+    padding-top: var(--size-6);
+}
+
+</style>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +80,39 @@
     </style>
 </head>
 <body>
+    <div class="page-container">
+    <nav>
+        <a href="/">Home</a>
+        <a href="/search">Search</a>
+        <a href="/">Contact</a>
+    </nav>
+    <h1>Sehat</h1>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Sehat is a health services platform dedicated to providing high-quality care for all.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: info@sehat.com</p>
+                <p>Phone: +1 234 567 890</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/search">Search</a></li>
+                    <li><a href="/">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2022 Sehat. All rights reserved.</p>
+        </div>
+    </footer>
+  </div>
     <div id="app">
         <h1>Welcome to Our Service</h1>
         <button id="doctorButton" class="role-button">I am a Doctor</button>
