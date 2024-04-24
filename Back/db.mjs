@@ -86,5 +86,18 @@ const PrescriptionSchema = new mongoose.Schema({
 });
 mongoose.model('prescriptions', PrescriptionSchema);
 
+const PatientSchema = new mongoose.Schema({
+    patient_id: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    dob: { type: Date, required: true },
+    height: { type: Number, required: true },
+    blood_group: { type: String, required: true },
+    gender: { type: String, required: true },
+});
+
+// Register the Patient model with Mongoose
+mongoose.model('patients', PatientSchema);
+
 
 export default dbConnection;

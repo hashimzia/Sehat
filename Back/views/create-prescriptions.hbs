@@ -4,7 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Provider Dashboard</title>
-    <link rel="stylesheet" href="/styles/main.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            margin: 0;
+            background: #f4f4f8; /* Slight background color for better contrast */
+        }
+        .page-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: #fff;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], textarea {
+            width: 100%; /* Ensure full width within the form container */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        form {
+            width:90%;
+        }
+        textarea {
+            height: 300px; /* Increased height */
+        }
+        .submit-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <div class="page-container provider-dashboard">
@@ -16,24 +58,8 @@
                 <input type="text" id="patient_id" name="patient_id" required>
             </div>
             <div class="form-group">
-                <label for="medication_name">Medication Name:</label>
-                <input type="text" id="medication_name" name="medication_name" required>
-            </div>
-            <div class="form-group">
-                <label for="dosage">Dosage:</label>
-                <input type="text" id="dosage" name="dosage" required>
-            </div>
-            <div class="form-group">
-                <label for="frequency">Frequency:</label>
-                <input type="text" id="frequency" name="frequency" required>
-            </div>
-            <div class="form-group">
-                <label for="duration">Duration:</label>
-                <input type="text" id="duration" name="duration" required>
-            </div>
-            <div class="form-group">
-                <label for="instructions">Instructions:</label>
-                <textarea id="instructions" name="instructions" rows="4" required></textarea>
+                <label for="prescription">Prescription:</label>
+                <textarea id="prescription" name="prescription" required></textarea>
             </div>
             <button type="button" class="submit-button" onclick="submitPrescription()">Submit</button>
         </form>
@@ -58,7 +84,10 @@
             } else {
                 alert('Failed to create prescription.');
             }
+            
         }
+        const prescription = document.getElementById('prescription');
+        prescription.value=`Doctor Name:\nDate:\nTime:\nPatient Name:\nAge:`
     </script>
 </body>
 </html>
