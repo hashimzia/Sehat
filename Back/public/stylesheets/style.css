@@ -114,7 +114,7 @@ h5{
 .std-input{
     padding: 0.5rem;
     border: 1px solid var(--black);
-    border-radius: var(--radius);
+    border-radius: var(--size-1);
     margin: 0.5rem;
     width: 100%;
     color: var(--black);
@@ -123,7 +123,7 @@ h5{
 .std-button{
     padding: 0.5rem;
     border: 2px solid var(--main-color);
-    border-radius: var(--radius);
+    border-radius: var(--size-1);
     margin: 0.5rem;
     width: 100%;
     color: var(--white);
@@ -131,6 +131,7 @@ h5{
     cursor: pointer;
     font-weight: bold;
     transition: ease-in-out 0.2s;
+    font-size: var(--size-4);
 }
 .std-button:hover{
     background-color: var(--white);
@@ -148,4 +149,5 @@ h5{
     justify-content: flex-start;
     align-items: flex-start;
     min-height: 100vh;
+    box-sizing: border-box;
 }

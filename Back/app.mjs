@@ -9,6 +9,7 @@ import url from 'url';
 
 import './config.mjs';
 import './db.mjs';
+import { generateSlots } from './functions.mjs';
 
 const app = express();
 const exhbs = new ExpressHandlebars({ defaultLayout: 'main', extname: '.hbs' });
@@ -27,7 +28,7 @@ const HealthProviders = mongoose.model('healthproviders');
 const Reviews = mongoose.model('reviews');
 const HealthProvidersRatings = mongoose.model('healthprovidersratings');
 const HealthProvidersSchedule = mongoose.model('healthprovidersschedule');
-
+const BookedSlots = mongoose.model('bookedslots');
 
 console.log(mongoose.connection.readyState);
 
@@ -46,6 +47,9 @@ app.get('/appointment-booking', (req, res) => {
 })
 app.get('/search', (req, res) => {
   res.render('search');
+})
+app.get('/provider-availability', (req, res) => {
+  res.render('provider-availability');
 })
 
 // full-text search as defined in db.mjs text index
@@ -140,6 +144,8 @@ app.get('/api/getReviews', async (req, res) =>{
 app.post('/api/setProviderAvailability', async (req, res) => {
   
   const data = req.body;
+  const slot_duration_minutes = 30; // default slot duration is 30 minutes, can be changed later / from the frontend //! not implemented yet
+  const weekday_availability = data.weekday_availability;
 
   // check if the provider already exists in the healthprovidersschedule collection
   let updateResult = await HealthProvidersSchedule.updateOne(
@@ -147,7 +153,7 @@ app.post('/api/setProviderAvailability', async (req, res) => {
     {
       $set: {
         weekday_availability: data.weekday_availability,
-        slot_duration_minutes: data.slot_duration_minutes
+        slot_duration_minutes: slot_duration_minutes
       }
     },
     { upsert: true } // if the provider does not exist, create a new object 
@@ -160,6 +166,7 @@ app.post('/api/setProviderAvailability', async (req, res) => {
     res.status(200).send("Provider availability set successfully");
   }
 })
+
 app.get('/api/getProviderAvailability', async (req, res) => {
   const provider_id = req.query.provider_id;
 
@@ -174,9 +181,107 @@ app.get('/api/getProviderAvailability', async (req, res) => {
 
   res.status(200).send(availability);
 })
-app.get('/api/getProviderAvailabilityByDay', async (req, res) => {
-  
+app.post('/api/getProviderAvailabilityByDay', async (req, res) => {
+  const data = req.body;
+  const provider_id = data.provider_id;
+  const target_date = data.target_date; // format "YYYY-MM-DD"
+
+  res.status(200).send({provider_id: provider_id, target_date: target_date});
 })
+
+app.post('/api/bookSlot', async (req, res) => {
+  // book a slot for a patient
+  // generate start and end unix timestamps for the slot
+  let start_time = new Date(`${req.body.target_date}T${req.body.start_time}`);
+  let end_time = new Date(`${req.body.target_date}T${req.body.end_time}`);
+
+  // create a new booked slot
+  const bookedSlot = await BookedSlots({
+    provider_id: req.body.provider_id,
+    patient_id: req.body.patient_id,
+    date: req.body.target_date,
+    start_time: start_time,
+    end_time: end_time,
+    slot_duration_minutes: req.body.slot_duration_minutes
+  });
+
+  try {
+    const savedReview = await bookedSlot.save();
+    res.status(200).send("Slot booked successfully");
+  }
+  catch (err){
+    console.error(err);
+    functionStatusCode = -2;
+    res.status(500).send("Error ocuured while adding review")
+  }
+});
+
+app.get('/api/getOpenSlots', async (req, res) => {
+  // get provider schedule 
+  // examine for available day
+  console.log(req.query);
+  const provider_id = req.query.provider_id;
+  const target_date = req.query.target_date; // format "YYYY-MM-DD"
+  const days = {
+    0: "Sunday",
+    1: "Monday",
+    2: "Tuesday",
+    3: "Wednesday",
+    4: "Thursday",
+    5: "Friday",
+    6: "Saturday"
+  }
+
+  // resolve date to day
+  const date = new Date(target_date);
+  const day = days[date.getDay()];
+  
+  // get provider schedule
+  let schedule;
+  try{
+    schedule = await HealthProvidersSchedule.findOne({provider_id: provider_id});
+  }
+  catch(err){
+    console.error(err);
+    res.status(500).send("Error ocuured while fetching healthprovidersschedule")
+  }
+
+  // check for availability on the given day  -- if provider is available on fridays, saturdays, sundays
+  console.log(schedule);
+  if (schedule === null || schedule === undefined){ res.send("No availability on the given day"); }
+  
+  let day_availability = [];
+  if (schedule["weekday_availability"] != undefined){
+     day_availability = schedule["weekday_availability"][day];
+    if (day_availability.length === 0){
+      res.status(200).send("No availability on the given day");
+    } 
+  }
+  else{
+    res.status(200).send("No availability on the given day");
+  }
+
+  // generate start and end times for the given day
+  const start_time = new Date(`${target_date}T${day_availability[0].start}`);
+  const end_time = new Date(`${target_date}T${day_availability[0].end}`);
+
+  // get booked slots for the given provider_id and target_date
+  let bookedSlots;
+  try{
+    bookedSlots = await BookedSlots.find({provider_id: provider_id, date: target_date});
+  }
+  catch(err){
+    console.error(err);
+    res.status(500).send("Error ocuured while fetching booked slots")
+  }
+
+  let slots = generateSlots(start_time, end_time, schedule.slot_duration_minutes, bookedSlots);
+  console.log(slots);
+
+  res.send(slots);
+
+});
+
 
 // homepage
 app.get('/home', (req, res) => {

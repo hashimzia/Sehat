@@ -70,5 +70,6 @@ const BookedSlots = new mongoose.Schema({
     end_time: String,
     slot_duration_minutes: Number,
 });
+mongoose.model('bookedslots', BookedSlots);
 
 export default dbConnection;

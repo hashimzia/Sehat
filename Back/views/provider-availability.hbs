@@ -1,0 +1,217 @@
+<script>
+    let selectedDays = {
+        Monday: false,
+        Tuesday: false,
+        Wednesday: false,
+        Thursday: false,
+        Friday: false,
+        Saturday: false,
+        Sunday: false
+    };
+    let atLeastOneSelected = false;
+    let availability = {};
+    let availabilityString = '';
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const days = document.querySelectorAll('.day');
+        days.forEach(day => {
+            day.addEventListener('click', () => {
+                day.classList.toggle('selected');
+                const isSelected = day.classList.contains('selected');
+                const dayName = day.innerText;
+                selectedDays[dayName] = isSelected;
+                    if (isSelected) {
+                    atLeastOneSelected = true;
+                } else {
+                    atLeastOneSelected = false;
+                    for (let day in selectedDays) {
+                        if (selectedDays[day]) {
+                            atLeastOneSelected = true;
+                            break;
+                        }
+                    }
+                }
+            });
+        });
+
+        document.querySelector('.save-button').addEventListener('click', () => {
+            document.querySelector('.input-1').style.display = 'none';
+            document.querySelector('.input-2').style.display = 'flex';
+
+            for (let day in selectedDays){
+                availability[day] = [];                    
+                if(selectedDays[day]){
+                    
+                    document.querySelector('.input-2 .day-time-inputs .input-container').innerHTML += `
+                        <div class="day-time-input">
+                            <span class="day-title">${day}</span>
+                            
+                            <div>
+                                <input type="time" name="${day}-start" id="${day}-start" value="09:00">
+                                <span class="day-title">-</span>
+                                <input type="time" name="${day}-end" id="${day}-end" value="17:00">
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+        });
+
+        document.querySelector('.save-button-2').addEventListener('click', async () => {
+            const dayTimeInputs = document.querySelectorAll('.day-time-input');
+            dayTimeInputs.forEach(dayTimeInput => {
+                const day = dayTimeInput.querySelector('.day-title').innerText;
+                const startTime = dayTimeInput.querySelector('input[type="time"]').value;
+                const endTime = dayTimeInput.querySelectorAll('input[type="time"]')[1].value;
+                availability[day].push({start: startTime, end: endTime});
+            });
+            document.querySelector('.input-2').style.display = 'none';
+            document.querySelector('.input-3').style.display = 'flex';
+
+            const providerID = document.getElementById('provider-id-debug').value 
+            const weekday_availability = availability;
+            availability = {};
+            availability['weekday_availability'] = weekday_availability;
+            availability['provider_id'] = providerID;    
+            availabilityString = JSON.stringify(availability);
+
+            const response = await fetch('/api/setProviderAvailability', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: availabilityString
+            });
+        });
+    });
+
+</script>
+
+
+<div class="page-container provider-availability">
+    <h1 style="color: var(--main-color);">Provider Availability</h1>
+    <input type="text" id="provider-id-debug">
+
+
+    <div class="input-container input-1">
+        <h2>What days are you available? (select all that apply) </h2>
+        <div class="days">
+            <div class="day">Monday</div>
+            <div class="day">Tuesday</div>
+            <div class="day">Wednesday</div>
+            <div class="day">Thursday</div>
+            <div class="day">Friday</div>
+            <div class="day">Saturday</div>
+            <div class="day">Sunday</div>
+        </div>
+
+        <div style="max-width: var(--size-9);">
+            <button class="std-button save-button">Save</button>
+        </div>
+    
+    </div>
+
+    <div class="input-container input-2">
+        
+        <h2>What times are you available on the selected days?</h2>
+
+        <div class="day-time-inputs">
+            <div class="input-container">
+
+            </div>
+        </div>
+
+        <div style="max-width: var(--size-9);">
+            <button class="std-button save-button-2">Save</button>
+        </div>
+    </div>
+
+    <div class="input-container input-3">
+        <h2 style="color: var(--alternate-color);">Availability Saved!</h2>
+    </div>
+
+
+</div>
+
+<style>
+.page-container{
+    padding: var(--size-6);
+    justify-content: center;
+    align-items: center;
+    gap: var(--size-4);
+    box-sizing: border-box;
+}
+.days{
+    display: flex;
+    gap: var(--size-3);
+}
+.day{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--main-color);
+    font-weight: 600;
+    background-color: var(--white);
+    border-radius: var(--size-1);
+    min-width: var(--size-10);
+    font-size: var(--size-4);
+    padding: var(--size-2) 0;
+    border: 2px solid var(--main-color);
+    transition: ease-in-out 0.3s;
+}
+.day:hover{
+    scale: 1.03;
+    transition: ease-in-out 0.3s;
+    cursor: pointer;
+}
+.day:hover:nth-child(odd){
+    transform: rotate(2deg);
+}
+.day:hover:nth-child(even){
+    transform: rotate(-2deg);
+}
+.input-container{
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-3);
+}
+
+.selected{
+    background-color: var(--main-color) !important;
+    color: var(--white) !important;
+    border: 2px solid var(--main-color);
+}
+.input-1{
+    display: flex;
+}
+.input-2{
+    display: none;
+}
+.input-3{
+    display: none;
+}
+input[type="time"]{
+    background-color: var(--opacity-black-4);
+    outline: none;
+    border: none;   
+    font-family: var(--font-sans);
+    font-weight: 600;
+    min-width: var(--size-9);
+    padding: var(--size-1) var(--size-3);
+    border-radius: var(--size-1);
+}
+.day-title{
+    font-size: var(--size-4-5);
+    font-weight: 600;
+    margin-right: auto;
+}
+.day-time-input{
+    display: flex;
+    gap: var(--size-3);
+    align-items: flex-end;
+    min-width: var(--size-12);
+}
+
+</style>

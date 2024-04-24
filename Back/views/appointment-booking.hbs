@@ -1,35 +1,90 @@
 <script>
 
+    let provider_id;
+    let target_date;
+    let slots = [];
+
+
     // wait for the page to load
     document.addEventListener('DOMContentLoaded', function() {
+       // listen for chanegs to the calendar-input
+       document.getElementById('calendar-input').addEventListener('input', async () => {
+            await setTargetDate();
+            await getSlots();
+       });
+
+    });
+
+
+    function getSlots(){
+        // get the slots for the provider on the target date
+        console.log('I was called');
+        fetch(`/api/getOpenSlots?provider_id=${provider_id}&target_date=${target_date}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            slots = data;
+            renderSlots(slots);
+        });
+    }
+
+    function renderSlots(slots){
+        let slotContainer = document.querySelector('.slot-container');
+        slotContainer.innerHTML = '';
+        let html = ''
         
-      });
+        slots.forEach(slot => {
+            let local_time = new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 
+            html += `
+                <div class="slot" onclick="selectSlot(this)">
+                    ${local_time}
+                </div>
+            `;
+        });
+        slotContainer.innerHTML = html;
+    }
+
+
+    function setTargetDate(){
+        target_date = document.getElementById('calendar-input').value;
+    }   
+    function setProviderId(){
+        console.log('provider id was submitted');
+        provider_id = document.getElementById('provider-id-debug').value;
+    }
 </script>
 <div class="page-container appointment-booking-page">
+
     <h1>Appointment Booking</h1>
-
-    <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: max-height;">
-
+    
+    <input type="text" name="" id="provider-id-debug" class="provider-id-debug" placeholder="Enter provider id">
+    <input type="submit" value="Submit" onclick="setProviderId()">    
+    
     <div id="calendar">
-        <input type="datetime" name="date" id="">
+        <input type="date"  id="calendar-input">
     </div>
 
-    </div>
+    <div class="slot-container">
 
+    </div>
 </div>
+
 <style>
 .appointment-booking-page{
     padding: var(--size-6);
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--size-3);
 }
 
 .appointment-booking-page h1{
     color: var(--main-color);
 }
-
-
 .appointment-booking-page .wrapper{
     display: flex;
     justify-content: center;
@@ -52,24 +107,37 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: var(--size-15);
+    max-height: var(--size-13);
+    gap: var(--size-2);
+    height: 50%;
 }
 .appointment-booking-page .slot{
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 0.5rem;
-    border: 1px solid var(--std-black);
-    border-radius: 0.15rem;
-    min-width: 7rem;
-    margin: 0.25rem;
-    font-weight: 500;
-    transition: ease-in-out 0.2s;
+    justify-content: center;
+    color: var(--main-color);
+    font-weight: 600;
+    background-color: var(--white);
+    border-radius: var(--size-1);
+    min-width: var(--size-10);
+    font-size: var(--size-4);
+    padding: var(--size-2) 0;
+    border: 2px solid var(--main-color);
+    transition: ease-in-out 0.3s;
 }
 .appointment-booking-page .slot:hover{
-    background-color: var(--std-black);
-    color: var(--std-white);
+    scale: 1.03;
+    transition: ease-in-out 0.3s;
     cursor: pointer;
+}
+.slot:hover:nth-child(odd){
+    transform: rotate(2deg);
+}
+.slot:hover:nth-child(even){
+    transform: rotate(-2deg);
 }
 .appointment-booking-page .selected{
     background-color: var(--main-color);
@@ -92,7 +160,7 @@
     font-size: var(--default-font-size);
     font-weight: var(--default-font-weight);
 }
-.appointment-booking-page input[type="text"]{
+{{!-- .appointment-booking-page input[type="text"]{
     margin-left: 0.5rem;
     display: inline;
     background-color: transparent;
@@ -104,7 +172,7 @@
 }
 .appointment-booking-page input[type=text]:focus{
     outline: none;
-}
+} --}}
 :root{
     --default-font-size: 2.5rem;
     --default-font-weight: bold;
