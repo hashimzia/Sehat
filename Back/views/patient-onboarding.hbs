@@ -1,48 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
+<script>
+    document.getElementById('patientForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('http://localhost:5173/api/register-patient', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            })
+            .then(response => response.json())
+            .then(data => alert('Patient registered successfully');
+            window.location.href = '/patient-dashboard';
+            )
+            .catch(error => alert('Error registering patient: ' + error));
+        });
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Onboarding</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f4f4f8;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-
-<body>
+        window.addEventListener("load", async function () {
+        await Clerk.load();
+        document.getElementById('patient_id').value=Clerk.user.id
+        document.getElementById('name').value=Clerk.user.fullName
+        document.getElementById('email').value=Clerk.user.emailAddresses[0].emailAddress
+        console.log(Clerk.user)
+    });    
+</script>
+<div class="page-container">
     <h1>Patient Onboarding</h1>
     <form id="patientForm">
         <div class="form-group">
@@ -86,42 +68,43 @@
                 <option value="Other">Other</option>
             </select>
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit" class="std-button">Submit</button>
     </form>
+</div>
+<style>
+    .page-container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--size-6);
+        box-sizing: border-box;
+    }
+    h1{
+        color: var(--main-color);
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    input, select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+</style>
 
-    <script>
-        document.getElementById('patientForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            fetch('http://localhost:5173/api/register-patient', {
-                method: 'POST',
-                body: JSON.stringify(Object.fromEntries(formData)),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-                .then(response => response.json())
-                .then(data => {
-                    alert('Patient registered successfully');
-                    window.location.href = '/patient-dashboard';
-                })
-                //window.location.href = '/patient-dashboard'
-
-
-                .catch(error => alert('Error registering patient: ' + error));
-
-        });
-
-        window.addEventListener("load", async function (event) {
-            await Clerk.load();
-            document.getElementById('patient_id').value = Clerk.user.id;
-            document.getElementById('name').value = Clerk.user.fullName;
-            document.getElementById('email').value = Clerk.user.emailAddresses[0].emailAddress;
-            console.log(Clerk.user);
-        });
-
-    </script>
-
-</body>
-
-</html>
