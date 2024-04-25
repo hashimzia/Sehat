@@ -100,6 +100,7 @@ app.get('/search', (req, res) => {
 })
 app.get('/provider-availability', (req, res) => {
   res.render('provider-availability');
+})
 app.get('/doctor-onboarding', (req, res) => {
   res.render('doctor-onboarding');
 })
@@ -357,7 +358,7 @@ app.get('/api/getOpenSlots', async (req, res) => {
   console.log(slots);
 
   res.send(slots);
-
+});
 // Existing route that should handle patient ID passed as query parameter
 app.get('/patient-dashboard', async (req, res) => {
   console.log(req.auth.userId)
@@ -473,10 +474,6 @@ app.get('/api/check-patient', async (req, res) => {
       res.status(500).send({ error: 'Internal server error' });
   }
 });
-
-
-
-
 // GET endpoint for a patient to view their prescriptions
 app.get('/api/viewPrescriptions/:patientId', async (req, res) => {
   const { patientId } = req.params;
@@ -491,9 +488,7 @@ app.get('/api/viewPrescriptions/:patientId', async (req, res) => {
       res.status(500).send("Error occurred while fetching prescriptions");
   }
 });
-
-
 // homepage
-app.get('/home', (req, res) => {
+app.get('/', (req, res) => {
   res.render('home');
-})
+});
