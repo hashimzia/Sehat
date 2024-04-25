@@ -1,72 +1,84 @@
-
 <style>
-h1{
-    color: var(--main-color);
-    font-size: var(--size-8);
-}
-nav{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: var(--size-6);
-    gap: var(--size-7);
-    background-color: var(--main-color);
-    width: 100%;
-    box-sizing: border-box;
-    border-radius: var(--size-2);
-    border-bottom-right-radius: var(--size-8);
-}
-a{
-    color: var(--white);
-    text-decoration: none;
-    font-size: var(--size-4-5);
-    font-weight: 600;
-    transition: ease-in-out 0.3s;
-}
-a:hover{
-    transition: ease-in-out 0.3s;
-    scale: 1.05;
-}
-a:hover:nth-child(odd){
-    transform: rotate(2deg);
-}
-a:hover:nth-child(even){
-    transform: rotate(-2deg);
-}
-footer{
-    border-top-left-radius: var(--size-8);
-    margin-top: auto;
-    padding: var(--size-6);
-    background-color: var(--alternate-color);
-    color: var(--white);
-    text-align: center;
-    width: 100%;
-    box-sizing: border-box;
-}
-.footer-content {
-    display: flex;
-    justify-content: space-between;
-}
+    h1 {
+        /*color: var(--main-color);*/
+        font-size: var(--size-8);
+    }
 
-.footer-section {
-    flex: 1;
-}
-.footer-section ul {
-    list-style-type: none;
-}
-.footer-bottom {
-    text-align: center;
-    padding-top: var(--size-6);
-}
+    nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: var(--size-6);
+        gap: var(--size-7);
+        background-color: var(--main-color);
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: var(--size-2);
+        border-bottom-right-radius: var(--size-8);
+    }
 
+    a {
+        color: var(--white);
+        text-decoration: none;
+        font-size: var(--size-4-5);
+        font-weight: 600;
+        transition: ease-in-out 0.3s;
+    }
+
+    a:hover {
+        transition: ease-in-out 0.3s;
+        scale: 1.05;
+    }
+
+    a:hover:nth-child(odd) {
+        transform: rotate(2deg);
+    }
+
+    a:hover:nth-child(even) {
+        transform: rotate(-2deg);
+    }
+
+    footer {
+        border-top-left-radius: var(--size-8);
+        margin-top: auto;
+        padding: var(--size-6);
+        background-color: var(--alternate-color);
+        color: var(--white);
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .footer-content {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .footer-section {
+        flex: 1;
+    }
+
+    .footer-section ul {
+        list-style-type: none;
+    }
+
+    .footer-bottom {
+        text-align: center;
+        padding-top: var(--size-6);
+    }
 </style>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
     <style>
-        #app { text-align: center; margin-top: 50px; }
+        #app {
+            text-align: center;
+            margin-top: 50px;
+        }
+
         .role-button {
             padding: 10px 20px;
             font-size: 16px;
@@ -79,42 +91,9 @@ footer{
         }
     </style>
 </head>
-<body>
-    <div class="page-container">
-    <nav>
-        <a href="/">Home</a>
-        <a href="/search">Search</a>
-        <a href="/">Contact</a>
-    </nav>
-    <h1>Sehat</h1>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>About Us</h3>
-                <p>Sehat is a health services platform dedicated to providing high-quality care for all.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Contact</h3>
-                <p>Email: info@sehat.com</p>
-                <p>Phone: +1 234 567 890</p>
-            </div>
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/search">Search</a></li>
-                    <li><a href="/">Contact</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2022 Sehat. All rights reserved.</p>
-        </div>
-    </footer>
-  </div>
+<body>
     <div id="app">
-        <h1>Welcome to Our Service</h1>
         <button id="doctorButton" class="role-button">I am a Doctor</button>
         <button id="patientButton" class="role-button">I am a Patient</button>
         <button id="signOutButton" class="role-button">Sign Out</button>
@@ -122,39 +101,40 @@ footer{
 
     <script src="https://js.clerk.dev/v4/clerk.browser.js" data-clerk-frontend-api="your_frontend_api_key"></script>
     <script>
-      window.addEventListener("load", async function () {
-        await Clerk.load();
+        window.addEventListener("load", async function () {
+            await Clerk.load();
 
-        const doctorButton = document.getElementById('doctorButton');
-        const patientButton = document.getElementById('patientButton');
-        const signOutButton = document.getElementById('signOutButton');
+            const doctorButton = document.getElementById('doctorButton');
+            const patientButton = document.getElementById('patientButton');
+            const signOutButton = document.getElementById('signOutButton');
 
-        doctorButton.onclick = function() {
-            Clerk.navigate('/doctor-onboarding'); // Adjust this URL to your doctor onboarding page
-        };
+            doctorButton.onclick = function () {
+                Clerk.navigate('/doctor-onboarding'); // Adjust this URL to your doctor onboarding page
+            };
 
-        patientButton.onclick = async function() {
-            const user = Clerk.user;
-            if (!user) {
-                console.log("No user logged in.");
-                return;
-            }
-            const patientId = user.id; // Assuming the patientId is stored as the user id in Clerk
-            const response = await fetch(`/api/check-patient?patientId=${encodeURIComponent(patientId)}`);
-            const data = await response.json();
-            console.log(data)
-            if (data.exists) {
-                Clerk.navigate('/patient-dashboard'); // Navigate to the patient dashboard
-            } else {
-                Clerk.navigate('/patient-onboarding'); // Navigate to the patient onboarding page
-            }
-        };
+            patientButton.onclick = async function () {
+                const user = Clerk.user;
+                if (!user) {
+                    console.log("No user logged in.");
+                    return;
+                }
+                const patientId = user.id; // Assuming the patientId is stored as the user id in Clerk
+                const response = await fetch(`/api/check-patient?patientId=${encodeURIComponent(patientId)}`);
+                const data = await response.json();
+                console.log(data)
+                if (data.exists) {
+                    Clerk.navigate('/patient-dashboard'); // Navigate to the patient dashboard
+                } else {
+                    Clerk.navigate('/patient-onboarding'); // Navigate to the patient onboarding page
+                }
+            };
 
-        signOutButton.onclick = async function() {
-            await Clerk.signOut();
-            Clerk.navigate('/login'); // Redirect to login after sign out
-        };
-      });
+            signOutButton.onclick = async function () {
+                await Clerk.signOut();
+                Clerk.navigate('/login'); // Redirect to login after sign out
+            };
+        });
     </script>
 </body>
+
 </html>

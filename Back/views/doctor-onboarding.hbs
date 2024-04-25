@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Doctor Onboarding</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        input, button { padding: 10px; margin: 10px; border-radius: 5px; border: 1px solid #ccc; }
-        button { background-color: #007BFF; color: white; cursor: pointer; }
-        .message { color: red; margin-top: 20px; }
+        /*body { font-family: Arial, sans-serif; margin: 40px; }*/
+        input,
+        button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        .message {
+            color: red;
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
     <h1>Doctor Onboarding</h1>
     <p>Please enter your Doctor ID to proceed:</p>
@@ -20,27 +37,28 @@
     <div id="message" class="message"></div> <!-- Element to display messages -->
 
     <script>
-        document.getElementById('doctorLoginForm').addEventListener('submit', function(event) {
+        document.getElementById('doctorLoginForm').addEventListener('submit', function (event) {
             event.preventDefault();
             const doctorId = document.getElementById('doctorId').value;
 
             // Send a GET request to the server
             fetch(`/api/verify-doctor?doctorId=${encodeURIComponent(doctorId)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Optionally redirect or update UI
-                    document.getElementById('message').textContent = 'Doctor verified. Redirecting...';
-                    window.location.href = '/doctor-dashboard'; // Redirect if needed
-                } else {
-                    document.getElementById('message').textContent = data.message;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('message').textContent = 'Failed to verify Doctor ID.';
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Optionally redirect or update UI
+                        document.getElementById('message').textContent = 'Doctor verified. Redirecting...';
+                        window.location.href = '/doctor-dashboard'; // Redirect if needed
+                    } else {
+                        document.getElementById('message').textContent = data.message;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('message').textContent = 'Failed to verify Doctor ID.';
+                });
         });
     </script>
 </body>
+
 </html>
