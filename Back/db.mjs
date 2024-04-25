@@ -11,6 +11,7 @@ const dbConnection = mongoose
 
 const HealthProviders = new mongoose.Schema({
     // wo bhi kya din the jab humne yeh schema banaya tha
+    userId: String,
     provider_id: String,
     first_name: String,
     last_name: String,
@@ -57,7 +58,7 @@ const HealthProvidersSchedule = new mongoose.Schema({
         Thursday: Array,
         Friday: Array,
         Saturday: Array,
-        Sunday: Array   
+        Sunday: Array
     },
     slot_duration_minutes: Number,
 })
