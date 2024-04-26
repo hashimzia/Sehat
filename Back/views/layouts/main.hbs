@@ -65,28 +65,9 @@
         const userbuttonDiv =
           document.getElementById('nav');
 
-        Clerk.mountUserButton(userbuttonDiv);
+        Clerk.mountUserButton(userbuttonDiv, { 'afterSignOutUrl': 'http://localhost:5173/login' });
 
-        function hasParentWithClass(element, className) {
-          while (element.parentElement) {
-            if (element.parentElement.classList.contains(className)) {
-              return true;
-            }
-            element = element.parentElement;
-          }
-          return false;
-        }
 
-        document.addEventListener('click', async function (event) {
-          if (event.target && (event.target.classList.contains('cl-userButtonPopoverActionButton__signOut') || hasParentWithClass(event.target, 'cl-userButtonPopoverActionButton__signOut'))) {
-            try {
-              await Clerk.signOut();
-              Clerk.navigate('/login');
-            } catch (error) {
-              console.error('Error signing out:', error);
-            }
-          }
-        });
 
 
       })
