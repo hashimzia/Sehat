@@ -12,7 +12,8 @@
 </head>
 <script async crossorigin="anonymous"
   data-clerk-publishable-key="pk_test_dGhvcm91Z2gtc3dhbi0xNy5jbGVyay5hY2NvdW50cy5kZXYk"
-  src="https://thorough-swan-17.clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js" type="text/javascript">
+  src="https://thorough-swan-17.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript">
 
   </script>
 
@@ -65,11 +66,36 @@
           document.getElementById('nav');
 
         Clerk.mountUserButton(userbuttonDiv);
-      });
+
+        function hasParentWithClass(element, className) {
+          while (element.parentElement) {
+            if (element.parentElement.classList.contains(className)) {
+              return true;
+            }
+            element = element.parentElement;
+          }
+          return false;
+        }
+
+        document.addEventListener('click', async function (event) {
+          if (event.target && (event.target.classList.contains('cl-userButtonPopoverActionButton__signOut') || hasParentWithClass(event.target, 'cl-userButtonPopoverActionButton__signOut'))) {
+            try {
+              await Clerk.signOut();
+              Clerk.navigate('/login');
+            } catch (error) {
+              console.error('Error signing out:', error);
+            }
+          }
+        });
+
+
+      })
+
       signOutButton.onclick = async function () {
         await Clerk.signOut();
         Clerk.navigate('/login'); // Redirect to login after sign out
       };
+
     </script>
 </body>
 
@@ -171,7 +197,8 @@
     padding-top: var(--size-6);
   }
 
-  .cl-internal-b3fm6y {
+  .cl-internal-b3fm6y,
+  .cl-internal-uyu30o {
     display: none;
   }
 

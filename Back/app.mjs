@@ -164,6 +164,13 @@ app.get('/patient-onboarding', async (req, res) => {
   }
   res.render('patient-onboarding');
 })
+app.get('/view-prescriptions', async (req, res) => {
+  const isPatient = await patientCheck(req.auth.userId);
+  if (!isPatient) {
+    return res.send("Unauthorized")
+  }
+  res.render('view-prescriptions');
+})
 
 // full-text search as defined in db.mjs text index
 app.get('/api/searchHealthProviders', async (req, res) => {
