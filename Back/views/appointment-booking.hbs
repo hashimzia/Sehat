@@ -1,6 +1,7 @@
 <script>
-
-    let provider_id;
+    const searchParams = new URLSearchParams(window.location.search);
+    let provider_id = searchParams.get('provider_id')
+    //let provider_id;
     let target_date;
     let slots = [];
 
@@ -13,8 +14,32 @@
             await setTargetDate();
             await getSlots();
         });
+        fetchProviderDetails()
 
     });
+
+    async function fetchProviderDetails() {
+        // Assuming the API can handle provider_id as a query for specific details
+        const query = encodeURIComponent(provider_id);
+        const response = await fetch(`/api/searchHealthProvidersId?query=${query}`);
+        const provider = await response.json();
+        console.log(provider)
+        if (provider) {
+            renderProviderDetails(provider);
+        } else {
+            console.log('No provider found with id:', provider_id);
+        }
+    }
+
+    function renderProviderDetails(provider) {
+        const providerDetails = document.querySelector('.provider-details');
+        providerDetails.innerHTML = `
+        <h2>${provider.first_name} ${provider.last_name} - ${provider.specialty}</h2>
+        <p>City: ${provider.city}</p>
+        <p>Experience: ${provider.years_of_experience} years</p>
+    `;
+    }
+
 
 
     function getSlots() {
@@ -53,12 +78,14 @@
     }
     function setProviderId() {
         console.log('provider id was submitted');
-        provider_id = document.getElementById('provider-id-debug').value;
+        //provider_id = document.getElementById('provider-id-debug').value;
     }
 </script>
 <div class="page-container appointment-booking-page">
 
     <h1>Appointment Booking</h1>
+
+    <div class="provider-details"></div>
 
     <input type="text" name="" id="provider-id-debug" class="provider-id-debug" placeholder="Enter provider id">
     <input type="submit" value="Submit" onclick="setProviderId()">

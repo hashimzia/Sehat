@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Zoom Meeting</title>
+</head>
+
+<body>
+    <div class="meeting-form">
+        <h1>Join a Zoom Consultation</h1>
+        <a id="joinMeetingLink" href="#" class="std-button">Join Meeting via Zoom</a>
+    </div>
+    <div id="zmmtg-root"></div>
+
+    <script type="text/javascript">
+        const searchParams = new URLSearchParams(window.location.search);
+        const slotId = searchParams.get('slotId');
+
+        fetch('/api/create-meeting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                slotId: slotId
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                const joinLinkButton = document.getElementById('joinMeetingLink');
+                joinLinkButton.href = data.join_url;
+            })
+            .catch(error => {
+                console.error('Error creating or joining meeting', error);
+            });
+
+    </script>
+</body>
+
+</html>

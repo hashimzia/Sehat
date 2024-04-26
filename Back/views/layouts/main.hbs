@@ -2,7 +2,9 @@
 
 <head>
   <title>Sehat</title>
+
   <link rel="stylesheet" href="/stylesheets/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap"
@@ -18,7 +20,7 @@
   <div class="page-container">
     <nav id="nav">
       <a href="/">
-        <h1>Sehat</h1>
+        <h1 class="label">Sehat</h1>
       </a>
       <a href="/">Home</a>
       <a href="/search">Search</a>
@@ -96,9 +98,13 @@
   }
 
   h1 {
-    /*color: var(--main-color);*/
+    color: var(--main-color);
     font-size: var(--size-8);
     text-align: center;
+  }
+
+  .label {
+    color: white;
   }
 
   nav {

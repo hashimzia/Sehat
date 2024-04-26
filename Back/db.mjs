@@ -71,6 +71,7 @@ const BookedSlots = new mongoose.Schema({
     start_time: String,
     end_time: String,
     slot_duration_minutes: Number,
+    meeting: Object
 });
 mongoose.model('bookedslots', BookedSlots);
 

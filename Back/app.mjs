@@ -10,6 +10,11 @@ import url from 'url';
 import './config.mjs';
 import './db.mjs';
 import { generateSlots } from './functions.mjs';
+import jwt from 'jsonwebtoken'
+import axios from 'axios'
+import querystring from 'querystring'
+
+
 // import session from 'express-session';
 
 import { config } from 'dotenv';
@@ -18,7 +23,6 @@ import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 config()
 
 // import Cookies from 'cookies';
-console.log()
 const app = express();
 const exhbs = new ExpressHandlebars({ defaultLayout: 'main', extname: '.hbs' });
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -31,6 +35,12 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+const healthpvdobject = {
+  provider_id: '01HV9GW3JNKFZTQTGCQ5GGZV86',
+  patient_id: 'user_2fYnCDKa3TOAXA8WFE7tFqFIb8l'
+}
+
+
 function loginCheck(req, res, next) {
   if (!req.auth.userId && req.path !== '/login' && !req.path.includes('api')) {
     return res.redirect('/login')
@@ -39,10 +49,11 @@ function loginCheck(req, res, next) {
 }
 
 async function patientCheck(id) {
-  console.log(id)
+  // console.log(id)
   const doctor = await HealthProviders.findOne({ userId: id })
-  console.log(doctor);
-  console.log(doctor);
+  // console.log(doctor);
+  // console.log(doctor);
+  console.log(doctor)
   if (doctor) {
     return false
   }
@@ -74,14 +85,12 @@ const port = 5173;
 
 // maintain case sensitivity, PascalCase for identifiers, lowercase ONLY for collection names
 const HealthProviders = mongoose.model('healthproviders');
-const hps = await HealthProviders.findOne({ provider_id: '01HV9GW3JNKFZTQTGCQ5GGZV86' })
-console.log(hps)
 const Reviews = mongoose.model('reviews');
 const HealthProvidersRatings = mongoose.model('healthprovidersratings');
 const HealthProvidersSchedule = mongoose.model('healthprovidersschedule');
 const BookedSlots = mongoose.model('bookedslots');
-
-console.log(mongoose.connection.readyState);
+const atv = await BookedSlots.findOne({});
+console.log(atv)
 
 app.listen(port, () => {
   console.log(`backend listening on port ${port}`)
@@ -89,15 +98,22 @@ app.listen(port, () => {
 
 app.get('/', async (req, res) => {
   // res.render('home');
+  const abc = await HealthProvidersSchedule.find({})
+  console.log(abc)
   const isPatient = await patientCheck(req.auth.userId);
   if (isPatient) {
     return res.render('patient-dashboard')
   } else {
     return res.render('doctor-dashboard')
   }
+
 })
 app.get('/login', (req, res) => {
   res.render('login');
+})
+app.get('/appointment-zoom', (req, res) => {
+  // res.render('appointment');
+  res.render('appointment')
 })
 app.get('/appointment-booking', async (req, res) => {
   const isPatient = await patientCheck(req.auth.userId);
@@ -156,6 +172,12 @@ app.get('/api/searchHealthProviders', async (req, res) => {
   let answer = await HealthProviders.find({ $text: { $search: searchQuery } });
   res.status(200).send(answer);
 })
+app.get('/api/searchHealthProvidersId', async (req, res) => {
+
+  let searchQuery = req.query.query;
+  let answer = await HealthProviders.findOne({ provider_id: searchQuery });
+  res.status(200).send(answer);
+})
 
 app.get('/api/verify-doctor', async (req, res) => {
   const { doctorId } = req.query; // Get doctorId from query parameters
@@ -173,6 +195,51 @@ app.get('/api/verify-doctor', async (req, res) => {
   }
 });
 
+
+app.post('/api/create-meeting', async (req, res) => {
+  let accessToken = await getToken(); // Fetch the access token
+  accessToken = accessToken['access_token']
+  if (!accessToken) {
+    return res.status(500).send('Failed to obtain access token');
+  }
+  console.log(req.body)
+  let slot = await BookedSlots.findOne({})
+  console.log(slot)
+  if (slot.meeting) {
+    return res.send(slot.meeting);
+  }
+
+  const config = {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'User-Agent': 'Zoom-api-Server2Server-Request',
+      'content-type': 'application/json'
+    },
+  };
+
+  const data = {
+    topic: 'New create',
+    type: 1, // Type 1 is an instant meeting
+    settings: {
+      host_video: "true",
+      participant_video: "true"
+    }
+  };
+
+  try {
+    const response = await axios.post('https://api.zoom.us/v2/users/me/meetings', data, config);
+    slot.meeting = response.data;
+    const sdkJWT = generateZoomMeetingSDKJWT(response.data.id, 1);
+    console.log(sdkJWT)
+    response.data.signature = sdkJWT
+    console.log(response.data)
+    res.send(response.data);
+
+  } catch (error) {
+    console.error('Error creating Zoom meeting:', error);
+    res.status(500).send('Failed to create Zoom meeting');
+  }
+});
 
 // a review is added to the reviews collection with two identifiers: provider_id and patient_id
 // total rating and total reviews are updated in the healthprovidersratings collection
@@ -333,7 +400,6 @@ app.post('/api/bookSlot', async (req, res) => {
 app.get('/api/getOpenSlots', async (req, res) => {
   // get provider schedule 
   // examine for available day
-  console.log(req.query);
   const provider_id = req.query.provider_id;
   const target_date = req.query.target_date; // format "YYYY-MM-DD"
   const days = {
@@ -361,7 +427,7 @@ app.get('/api/getOpenSlots', async (req, res) => {
   }
 
   // check for availability on the given day  -- if provider is available on fridays, saturdays, sundays
-  console.log(schedule);
+  // console.log(schedule);
   if (schedule === null || schedule === undefined) { return res.send([]); }
 
   let day_availability = [];
@@ -390,7 +456,7 @@ app.get('/api/getOpenSlots', async (req, res) => {
   }
 
   let slots = generateSlots(start_time, end_time, schedule.slot_duration_minutes, bookedSlots);
-  console.log(slots);
+  // console.log(slots);
 
   res.send(slots);
 });
@@ -406,7 +472,7 @@ app.get('/patient-dashboard', async (req, res) => {
     return res.render('patient-id-prompt');
   }
 
-  console.log('Fetching prescriptions for patient ID:', patientId);
+  // console.log('Fetching prescriptions for patient ID:', patientId);
   const Prescription = mongoose.model('prescriptions');
 
   try {
@@ -422,7 +488,7 @@ app.get('/patient-dashboard', async (req, res) => {
 // Serve the specific prescriptions once the patient ID is known
 app.get('/patient-dashboard/:patientId', async (req, res) => {
   const { patientId } = req.params;
-  console.log('Fetching prescriptions for patient ID:', patientId);
+  // console.log('Fetching prescriptions for patient ID:', patientId);
   const Prescription = mongoose.model('prescriptions');
 
   try {
@@ -466,7 +532,7 @@ app.post('/api/createPrescription', async (req, res) => {
 
   try {
     const savedPrescription = await newPrescription.save();
-    console.log('Saved Prescription:', savedPrescription); // Log the saved prescription
+    // console.log('Saved Prescription:', savedPrescription); // Log the saved prescription
     res.status(200).send({ message: 'Prescription saved successfully', prescriptionId: savedPrescription._id });
   } catch (err) {
     console.error(err);
@@ -515,7 +581,7 @@ app.get('/api/check-patient', async (req, res) => {
 // GET endpoint for a patient to view their prescriptions
 app.get('/api/viewPrescriptions/:patientId', async (req, res) => {
   const { patientId } = req.params;
-  console.log(patientId);
+  // console.log(patientId);
   const Prescription = mongoose.model('prescriptions');
 
   try {
@@ -530,3 +596,56 @@ app.get('/api/viewPrescriptions/:patientId', async (req, res) => {
 app.get('/', (req, res) => {
   res.render('home');
 });
+
+
+const clientId = process.env.ZOOM_CLIENT_ID;
+const clientSecret = process.env.ZOOM_CLIENT_SECRET;
+const accountId = process.env.ZOOM_ACCOUNT_ID; // Usually found in your Zoom account settings
+
+const getToken = async () => {
+  const url = 'https://zoom.us/oauth/token';
+  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  const headers = {
+    'Authorization': `Basic ${auth}`,
+    'Content-Type': 'application/x-www-form-urlencoded'
+  };
+  const body = querystring.stringify({
+    grant_type: 'account_credentials',
+    account_id: accountId
+  });
+
+  try {
+    const response = await axios.post(url, body, { headers });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Zoom token:', error);
+    return null;
+  }
+};
+
+app.get('/get-token', async (req, res) => {
+  const tokenData = await getToken();
+  if (tokenData) {
+    res.json(tokenData);
+  } else {
+    res.status(500).send('Failed to get token');
+  }
+});
+
+
+function generateZoomMeetingSDKJWT(meetingNumber, role) {
+  const iat = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
+  const exp = iat + 7200; // Token valid for 2 hours
+
+  const payload = {
+    appKey: clientId, // Your Zoom SDK Client ID
+    mn: meetingNumber, // Zoom Meeting Number
+    role: role, // 0 for participant, 1 for host
+    iat: iat,
+    exp: exp,
+    tokenExp: exp
+  };
+
+  const token = jwt.sign(payload, clientSecret, { algorithm: 'HS256' });
+  return token;
+}

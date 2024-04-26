@@ -1,29 +1,32 @@
+{{!--
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Dashboard</title>
     <link rel="stylesheet" href="/styles/main.css">
 </head>
+
 <body>
     <div class="page-container patient-dashboard">
         <h1>Your Prescriptions</h1>
         <div class="prescription-list">
-         {{#each prescriptions}}
-    <div class="prescription">
-        <h2>Prescription ID: {{this._id}}</h2>
-        <h3>Instructions: {{this.instructions}}</h3>
-        {{#each this.medication}}
-            <div>
-                <p>Medication: {{this.name}}</p>
-                <p>Dosage: {{this.dosage}}</p>
-                <p>Frequency: {{this.frequency}}</p>
-                <p>Duration: {{this.duration}}</p>
+            {{#each prescriptions}}
+            <div class="prescription">
+                <h2>Prescription ID: {{this._id}}</h2>
+                <h3>Instructions: {{this.instructions}}</h3>
+                {{#each this.medication}}
+                <div>
+                    <p>Medication: {{this.name}}</p>
+                    <p>Dosage: {{this.dosage}}</p>
+                    <p>Frequency: {{this.frequency}}</p>
+                    <p>Duration: {{this.duration}}</p>
+                </div>
+                {{/each}}
             </div>
-        {{/each}}
-    </div>
-{{/each}}
+            {{/each}}
 
         </div>
     </div>
@@ -45,4 +48,37 @@
         });
     </script>
 </body>
-</html>
+
+</html> --}}
+
+<title>Patient Dashboard</title>
+<style>
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--size-6);
+        box-sizing: border-box;
+    }
+
+    button {
+        padding: 10px 20px;
+        margin: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background-color: var(--main-color);
+        color: white;
+        cursor: pointer;
+    }
+</style>
+
+<div class="dashboard-container">
+    <h1>Patient Dashboard</h1>
+    <div>
+        <button onclick="location.href='/create-appointment'" class="std-button">Create Appointment</button>
+        <button onclick="location.href='/view-prescriptions'" class="std-button">View Prescriptions</button>
+        <button onclick="location.href='/search'" class="std-button">Search Providers</button>
+        <button onclick="location.href='/view-appointments'" class="std-button">View Appointments</button>
+    </div>
+</div>
