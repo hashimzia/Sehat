@@ -68,8 +68,8 @@ const BookedSlots = new mongoose.Schema({
     provider_id: String,
     patient_id: String,
     date: Date,
-    start_time: String,
-    end_time: String,
+    start_time: Date,
+    end_time: Date,
     slot_duration_minutes: Number,
     meeting: Object
 });

@@ -5,16 +5,14 @@
     let target_date;
     let slots = [];
 
-
     // wait for the page to load
     document.addEventListener('DOMContentLoaded', function () {
+        fetchProviderDetails();
         // listen for chanegs to the calendar-input
         document.getElementById('calendar-input').addEventListener('input', async () => {
-
             await setTargetDate();
-            await getSlots();
+            await fetchProviderOpenSlots(provider_id, target_date);
         });
-        fetchProviderDetails()
 
     });
 
@@ -23,12 +21,20 @@
         const query = encodeURIComponent(provider_id);
         const response = await fetch(`/api/searchHealthProvidersId?query=${query}`);
         const provider = await response.json();
-        console.log(provider)
         if (provider) {
             renderProviderDetails(provider);
+            return provider['provider_id']
         } else {
             console.log('No provider found with id:', provider_id);
         }
+    }
+    async function fetchProviderOpenSlots(provider_id, target_date){
+        fetch(`/api/getOpenSlots?provider_id=${provider_id}&target_date=${target_date}`)
+            .then(response => response.json())
+            .then(data => {
+                slots = data;
+                renderSlots(slots);
+            });
     }
 
     function renderProviderDetails(provider) {
@@ -40,31 +46,14 @@
     `;
     }
 
-
-
-    function getSlots() {
-        // get the slots for the provider on the target date
-        console.log('I was called');
-        fetch(`/api/getOpenSlots?provider_id=${provider_id}&target_date=${target_date}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                slots = data;
-                renderSlots(slots);
-            });
-    }
-
     function renderSlots(slots) {
         let slotContainer = document.querySelector('.slot-container');
         slotContainer.innerHTML = '';
         let html = ''
-
         slots.forEach(slot => {
             let local_time = new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-
             html += `
-                <div class="slot" onclick="selectSlot(this)">
+                <div class="slot" onclick="selectSlot(this)" data-end-time="${slot.end_time}" data-start-time="${slot.start_time}" data-slot-duration-minutes="${slot.slot_duration_minutes}"> 
                     ${local_time}
                 </div>
             `;
@@ -72,13 +61,66 @@
         slotContainer.innerHTML = html;
     }
 
-
     function setTargetDate() {
         target_date = document.getElementById('calendar-input').value;
     }
-    function setProviderId() {
-        console.log('provider id was submitted');
-        //provider_id = document.getElementById('provider-id-debug').value;
+    function selectSlot(slot) {
+        let selected = document.querySelector('.selected');
+        if (selected) {
+            selected.classList.remove('selected');
+        }
+        slot.classList.add('selected');
+        showConfirmationButton();
+    }
+    function showConfirmationButton() {
+        let button = document.getElementById("confirmation-button");
+        button.style.display = "block";
+    }
+    function confirmAppointment() {
+        let selectedSlot = document.querySelector('.selected');
+        let start_time = selectedSlot.getAttribute('data-start-time');
+        let end_time = selectedSlot.getAttribute('data-end-time');
+        let slot_duration_minutes = selectedSlot.getAttribute('data-slot-duration-minutes');
+        let local_time = selectedSlot.innerText;
+        bookAppointment(provider_id, target_date, start_time, end_time, slot_duration_minutes);
+
+        document.querySelector('.slot-container').innerHTML = ``;
+        document.querySelector('#confirmation-button').style.display = 'none';
+    
+
+        let confirmationMessage = document.createElement('div');
+        confirmationMessage.innerHTML = `
+            <h2>Appointment Confirmed</h2>
+            <p>Date: ${target_date}</p>
+            <p>Time: ${local_time}</p>
+        `;
+        document.querySelector('.slot-container').appendChild(confirmationMessage);
+    }
+    function bookAppointment(provider_id, target_date, start_time, end_time, slot_duration_minutes){
+        // send the selected slot to the server
+        let data = {
+            provider_id: provider_id,
+            target_date: target_date,
+            start_time: start_time,
+            end_time: end_time,
+            slot_duration: slot_duration_minutes
+        };
+        let jsonData = JSON.stringify(data);
+        console.log(jsonData)
+        fetch('api/bookSlot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
     }
 </script>
 <div class="page-container appointment-booking-page">
@@ -87,9 +129,6 @@
 
     <div class="provider-details"></div>
 
-    <input type="text" name="" id="provider-id-debug" class="provider-id-debug" placeholder="Enter provider id">
-    <input type="submit" value="Submit" onclick="setProviderId()">
-
     <div id="calendar">
         <input type="date" id="calendar-input">
     </div>
@@ -97,9 +136,14 @@
     <div class="slot-container">
 
     </div>
+    <button class="std-button" id="confirmation-button" style="width: var(--size-10);" onclick="confirmAppointment()">Confirm</button>
+
 </div>
 
 <style>
+    #confirmation-button{
+        display: none;
+    }
     .appointment-booking-page {
         padding: var(--size-6);
         box-sizing: border-box;
@@ -178,7 +222,7 @@
 
     .appointment-booking-page .selected {
         background-color: var(--main-color);
-        color: var(--std-white);
+        color: var(--white);
     }
 
     .appointment-booking-page .question {

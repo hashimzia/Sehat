@@ -109,7 +109,7 @@ app.get('/', async (req, res) => {
 
 })
 app.get('/login', (req, res) => {
-  res.render('login');
+  res.render('login', { layout: 'login' });
 })
 app.get('/appointment-zoom', (req, res) => {
   // res.render('appointment');
@@ -380,16 +380,19 @@ app.post('/api/getProviderAvailabilityByDay', async (req, res) => {
 app.post('/api/bookSlot', async (req, res) => {
   // book a slot for a patient
   // generate start and end unix timestamps for the slot
-  let start_time = new Date(`${req.body.target_date}T${req.body.start_time}`);
-  let end_time = new Date(`${req.body.target_date}T${req.body.end_time}`);
-
+  // let start_time = new Date(`${req.body.target_date}T${req.body.start_time}`);
+  // let end_time = new Date(`${req.body.target_date}T${req.body.end_time}`);
   // create a new booked slot
+  // convert a time string to a Date object
+  // remove zulu time from the string
+
+
   const bookedSlot = await BookedSlots({
     provider_id: req.body.provider_id,
-    patient_id: req.body.patient_id,
+    patient_id: req.auth.userId,
     date: req.body.target_date,
-    start_time: start_time,
-    end_time: end_time,
+    start_time: req.body.start_time,
+    end_time: req.body.end_time,
     slot_duration_minutes: req.body.slot_duration_minutes
   });
 
@@ -463,8 +466,6 @@ app.get('/api/getOpenSlots', async (req, res) => {
   }
 
   let slots = generateSlots(start_time, end_time, schedule.slot_duration_minutes, bookedSlots);
-  // console.log(slots);
-
   res.send(slots);
 });
 // Existing route that should handle patient ID passed as query parameter
