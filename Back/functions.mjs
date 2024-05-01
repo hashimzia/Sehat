@@ -6,7 +6,8 @@ function generateSlots(start_time, end_time, slot_duration_minutes, booked_slots
     while(current_time < end_time){
       let slot = {
         start_time: current_time,
-        end_time: new Date(current_time.getTime() + slot_duration_minutes*60000)
+        end_time: new Date(current_time.getTime() + slot_duration_minutes*60000),
+        slot_duration_minutes: slot_duration_minutes
       }
       let is_booked = false;
       for(let i=0; i<booked_slots.length; i++){

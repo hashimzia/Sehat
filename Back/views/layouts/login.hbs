@@ -18,62 +18,21 @@
   </script>
 
 <body>
-  <div class="page-container">
-    <nav id="nav">
-      <a href="/">
-        <h1 class="label">Sehat</h1>
-      </a>
-      <a href="/">Home</a>
-      <a href="/search">Search</a>
-      <a href="/" >Contact</a>
-      <div style="margin-left: auto;"></div>
-    </nav>
-
-    <div class="container" style="width: 100%;">
-      <div id="content" class="content">
+    <div class="page-container">
         {{{ body }}}
-      </div>
     </div>
-    <footer>
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3>About Us</h3>
-          <p>Sehat is a health services platform dedicated to providing high-quality care for all.</p>
-        </div>
-        <div class="footer-section">
-          <h3>Contact</h3>
-          <p>Email: info@sehat.com</p>
-          <p>Phone: +1 234 567 890</p>
-        </div>
-        <div class="footer-section">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/search">Search</a></li>
-            <li><a href="/">Contact</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2022 Sehat. All rights reserved.</p>
-      </div>
-    </footer>
     <script>
       window.addEventListener("load", async function () {
         await Clerk.load();
-
         const userbuttonDiv =
           document.getElementById('nav');
-
         Clerk.mountUserButton(userbuttonDiv, { 'afterSignOutUrl': 'http://localhost:5173/login' });
-
       })
 
       signOutButton.onclick = async function () {
         await Clerk.signOut();
         Clerk.navigate('/login'); // Redirect to login after sign out
       };
-
     </script>
 </body>
 
@@ -81,9 +40,9 @@
 
 
 <style>
-  #app {
+
+ #app {
     text-align: center;
-    margin-top: 50px;
   }
 
   #nav {
@@ -115,7 +74,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: var(--size-6) var(--size-8);
+    padding: var(--size-6);
     gap: var(--size-7);
     background-color: var(--main-color);
     width: 100%;
@@ -150,7 +109,7 @@
     border-top-left-radius: var(--size-8);
     margin-top: var(--size-8);
     padding: var(--size-6);
-    background-color: var(--black);
+    background-color: var(--alternate-color);
     color: var(--white);
     text-align: center;
     width: 100%;

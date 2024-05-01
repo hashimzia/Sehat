@@ -1,4 +1,8 @@
-<div id="app"></div>
+<div class="page-container">
+  <h1>Sehat</h1>
+<div id="app">
+</div>
+</div>
 <script>
   window.addEventListener("load", async function () {
     await Clerk.load();
@@ -29,76 +33,21 @@
   });
 </script>
 
-
-{{!-- <div class="page-container login-page">
-  <div class="container">
-    <div class="left">
-      <h1 class="branding">Sehat</h1>
-    </div>
-    <div class="right">
-      <h3 class="loginButton">Login</h3>
-      <div class="loginContainer">
-        <h2>Create an account</h2>
-        <h5>Enter your email below to create your account</h5>
-        <input type="email" placeholder="johndoe@example.com" class='std-input' />
-        <button class='std-button'>Create Account</button>
-      </div>
-    </div>
-  </div>
-</div>
 <style>
-  .login-page .container {
+  .page-container{
+    gap: var(--size-6);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    overflow: hidden;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    box-sizing: border-box;
   }
-
-  .login-page .left {
-    flex: 1 1 auto;
+  #app {
     display: flex;
-    padding: 2rem;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    background-color: var(--main-color);
-    height: 100%;
-  }
-
-  .login-page .right {
-    flex: 0 0 auto;
-    display: grid;
-    padding: 2rem;
-    flex-direction: column;
-    height: 100%;
-    min-width: 50%;
-
-  }
-
-  .login-page .branding {
-    font-weight: 700;
-    color: var(--white);
-  }
-
-  .login-page .loginButton {
-    color: var(--main-color);
-    align-self: flex-start;
-    justify-self: flex-end;
-    position: absolute;
-  }
-
-  .login-page .loginContainer {
-    display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    align-self: center;
-    justify-self: center;
-    gap: 0.5rem;
+    box-sizing: border-box;
+    background-size: cover;
+    background-position: center;
   }
-</style> --}}
+</style>
