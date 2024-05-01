@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <head>
 	<title>Sehat</title>
 	<link rel="stylesheet" href="/stylesheets/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
@@ -8,9 +9,105 @@
 </head>
 <body>
 	<div class="container">
+         {{#unless hideHeader}}
+        <!-- Header Start -->
+        <header class="main-header">
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li><a href="/appointment-booking" class="button">Appointments</a></li>
+                    <li><a href="/prescriptions" class="button">Prescriptions</a></li>
+                    <!-- Replaced search bar with a button -->
+                    <li><a href="/search" class="button">Search</a></li>
+                </ul>
+            </nav>
+            <div class="user-welcome">
+                <span>Welcome Ahmed</span>
+                <a href="/user-profile.hbs"><img src="/path-to-your-profile-icon.svg" alt="Profile" /></a>
+            </div>
+        </header>
+        {{/unless}}
+        <!-- Header End -->
         <div id="content" class="content">
             {{{ body }}}
         </div>	
+        
 	</div>
 </body>
 </html>
+<style>
+    /* Add this to your style.css */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.main-nav .nav-list {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav .nav-item {
+    margin-right: 2rem; /* Adjust the space between items as needed */
+}
+
+.main-nav .nav-link {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    padding: 5px 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.button {
+    border-radius: 0.3rem;
+    color: #333;
+    margin: 1rem;
+    font: var(--font-sans);
+    text-decoration: none;
+    position: relative; 
+    overflow: hidden; 
+}
+
+.button::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s;
+}
+
+.button:hover::after {
+    width: 100%;
+}
+
+.button:hover {
+    color: var(--main-color);
+    transition: color 0.3s;
+}
+
+.user-welcome {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.user-welcome span {
+    margin-right: 10px;
+}
+
+.user-welcome img {
+    width: 24px; /* Adjust as necessary for your icon */
+    height: auto;
+}
+
+
+</style>
