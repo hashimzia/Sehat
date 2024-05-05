@@ -48,7 +48,7 @@ for index, row in df.iterrows():
     del doc['_id']
     count += 1
     print(f'Inserted {count} documents')
-    if count >= 100: break
+    # if count >= 100: break
 
 # # Get the last 100 documents
 # cursor = collection.find().sort([("$natural", -1)]).limit(100)

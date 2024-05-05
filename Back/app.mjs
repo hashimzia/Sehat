@@ -35,6 +35,8 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
+
 const healthpvdobject = {
   provider_id: '01HV9GW3JNKFZTQTGCQ5GGZV86',
   patient_id: 'user_2fYnCDKa3TOAXA8WFE7tFqFIb8l'
@@ -49,11 +51,7 @@ function loginCheck(req, res, next) {
 }
 
 async function patientCheck(id) {
-  // console.log(id)
   const doctor = await HealthProviders.findOne({ userId: id })
-  // console.log(doctor);
-  // console.log(doctor);
-  console.log(doctor)
   if (doctor) {
     return false
   }
@@ -89,17 +87,13 @@ const Reviews = mongoose.model('reviews');
 const HealthProvidersRatings = mongoose.model('healthprovidersratings');
 const HealthProvidersSchedule = mongoose.model('healthprovidersschedule');
 const BookedSlots = mongoose.model('bookedslots');
-const atv = await BookedSlots.findOne({});
+const atv = await BookedSlots.find({});
 console.log(atv)
-
 app.listen(port, () => {
   console.log(`backend listening on port ${port}`)
 })
 
 app.get('/', async (req, res) => {
-  // res.render('home');
-  const abc = await HealthProvidersSchedule.find({})
-  console.log(abc)
   const isPatient = await patientCheck(req.auth.userId);
   if (isPatient) {
     return res.render('patient-dashboard')
@@ -111,10 +105,127 @@ app.get('/', async (req, res) => {
 app.get('/login', (req, res) => {
   res.render('login', { layout: 'login' });
 })
-app.get('/appointment-zoom', (req, res) => {
-  // res.render('appointment');
-  res.render('appointment')
+app.get('/appointment-zoom/:slotId', async(req, res) => {
+  const slotId = req.params.slotId;
+  console.log(slotId)
+  
+  try {
+    const slot = await BookedSlots.findById(slotId)
+    const providerDetails = await HealthProviders.findOne({provider_id:slot.provider_id})
+    console.log(providerDetails)
+    const name = providerDetails.first_name + " " +providerDetails.last_name;
+    const speciality = providerDetails.specialty;
+    const years = providerDetails.years_of_experience;
+    const  city= providerDetails.city;
+    if (slot){
+      res.render('appointment',{slotId,name,years,speciality,city});
+    } else {
+      res.render('error',{errorCode:404,errorMessage:"Slot not found" })
+    }
+  }
+  catch {
+    res.render('error',{errorCode:500,errorMessage:"Incorrect path" })
+  }
 })
+
+// app.get('/view-appointments', async(req, res) => {
+//   const userId = req.auth.userId;
+//   console.log(userId)
+//   const appointmentsArray=[]
+//   const Patient = mongoose.model('patients');
+//   let appointments;
+//   // try {
+//     const isPatient = await patientCheck(userId)
+//     if (isPatient){
+//       appointments = await BookedSlots.find({patient_id:userId})
+
+//       appointments.forEach( async function (appointment){
+//         console.log(appointment)
+//         const doctor = await HealthProviders.findOne({provider_id:appointment.provider_id})
+//         console.log(doctor)
+//         appointmentsArray.push({
+//           name: doctor.first_name +" " + doctor.last_name,
+//           start_time: appointment.start_time,
+//         })
+
+//       }
+//       )
+//     } else{
+//       const doctorId =await  HealthProviders.findById(userId)
+//       doctorId= doctorId.provider_id
+//       appointments = await BookedSlots.find({provider_id:doctorId})
+//       appointments.forEach( async function (appointment){
+//         const patient = await Patient.findOne({provider_id:appointment.provider_id})
+//         appointmentsArray.push({
+//           name: patient.first_name +" " + patient.last_name,
+//           start_time: appointment.start_time,
+//         })
+//       }
+//       )
+//     }
+//     console.log(appointmentsArray)
+//     res.render('view-appointments',appointmentsArray)
+//   }
+  // catch {
+  //   res.render('error',{errorCode:500,errorMessage:"Incorrect path" })
+  // }
+// }
+// )
+
+app.get('/view-appointments', async (req, res) => {
+  try {
+      const userId = req.auth.userId;
+      const appointmentsArray = [];
+      const Patient = mongoose.model('patients');
+      let appointments;
+
+      const isPatient = await patientCheck(userId);
+
+      if (isPatient) {
+          appointments = await BookedSlots.find({ patient_id: userId });
+      } else {
+          const doctorId = await HealthProviders.find({userId:userId});
+          const providerId = doctorId.provider_id;
+          appointments = await BookedSlots.find({ provider_id: providerId });
+      }
+
+      for (const appointment of appointments) {
+          let name;
+          console.log(name)
+          if (isPatient) {
+              const doctor = await HealthProviders.findOne({ provider_id: appointment.provider_id });
+              name = `${doctor.first_name} ${doctor.last_name}`;
+          } else {
+              const patient = await Patient.findOne({ provider_id: appointment.provider_id });
+              name = `${patient.first_name} ${patient.last_name}`;
+          }
+
+          const hours = appointment.start_time.getHours().toString().padStart(2, '0'); // Ensure two digits for hours
+            const minutes = appointment.start_time.getMinutes().toString().padStart(2, '0'); // Ensure two digits for minutes
+            const time = `${hours}:${minutes}`;
+      
+          appointmentsArray.push({
+              name: name,
+              start_time: time,
+              date: appointment.start_time.toDateString(),
+              id: appointment._id
+          });
+      }
+      console.log(appointmentsArray)
+      if (appointmentsArray.length!=0){
+        res.render('view-appointments', { appointmentsArray });
+      } else{
+        res.render('error',{errorCode:404,errorMessage:"No appointments found"})
+      }
+  } catch (err) {
+      // Handle errors appropriately
+      console.error(err);
+      res.render('error',{errorCode:500, errorMessage:"Internal server error"})
+  }
+});
+
+
+
 app.get('/appointment-booking', async (req, res) => {
   const isPatient = await patientCheck(req.auth.userId);
   if (!isPatient) {
@@ -217,9 +328,9 @@ app.post('/api/create-meeting', async (req, res) => {
   if (!accessToken) {
     return res.status(500).send('Failed to obtain access token');
   }
-  console.log(req.body)
+  // console.log(req.body)
   let slot = await BookedSlots.findOne({})
-  console.log(slot)
+  // console.log(slot)
   if (slot.meeting) {
     return res.send(slot.meeting);
   }
@@ -245,9 +356,9 @@ app.post('/api/create-meeting', async (req, res) => {
     const response = await axios.post('https://api.zoom.us/v2/users/me/meetings', data, config);
     slot.meeting = response.data;
     const sdkJWT = generateZoomMeetingSDKJWT(response.data.id, 1);
-    console.log(sdkJWT)
+    // console.log(sdkJWT)
     response.data.signature = sdkJWT
-    console.log(response.data)
+    // console.log(response.data)
     res.send(response.data);
 
   } catch (error) {
@@ -263,7 +374,7 @@ app.post('/api/addReview', async (req, res) => {
 
   const data = req.body;
   const rating_ = parseInt(data.rating);   // convert to number //! check for errors here
-  console.log(data);
+  // console.log(data);
 
   // create a new review, timestamp(Date.now()) is automatically added 
   const review = new Reviews({

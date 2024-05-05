@@ -1,0 +1,40 @@
+<h1>Appointments</h1>
+<div class="appointments">
+{{#each appointmentsArray}}
+<div class="provider">
+    <h2>{{name}}</h2>
+    <p>{{start_time}}</p>
+    <p>{{date}}</p>
+    <button onclick="location.href='/appointment-zoom/{{id}}'" class='book-button'>Join meeting</button>
+</div>
+{{/each}}
+</div>
+
+<style>
+    .provider {
+        background-color: var(--opacity-black-3);
+        min-width: var(--size-13);
+        padding: var(--size-4);
+        border-radius: var(--size-1);
+        margin: var(--size-2);
+    }
+    .book-button {
+        background-color: var(--alternate-color);
+        color: white;
+        padding: var(--size-1) var(--size-4);
+        border-radius: var(--size-1);
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: var(--size-4);
+        margin: var(--size-2) 0;
+    }
+    .appointments{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: var(--size-5);
+    }
+</style>

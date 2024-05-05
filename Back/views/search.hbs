@@ -15,9 +15,9 @@
             html += `
                 <div class="provider">
                     <h2>${provider.first_name} ${provider.last_name}</h2>
-                    <p>${provider.specialty}</p>
-                    <p>${provider.city}</p>
-                    <p>${provider.years_of_experience}</p>
+                    <p>Specialty: ${provider.specialty}</p>
+                    <p>City: ${provider.city}</p>
+                    <p>Years of Experience: ${provider.years_of_experience}</p>
                     <button onclick="location.href='/appointment-booking?provider_id=${provider.provider_id}'" class='book-button'>Book Appointment</button>
 
                 </div>

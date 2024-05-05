@@ -1,23 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Zoom Meeting</title>
-</head>
-
-<body>
-    <div class="meeting-form">
+    <div style="display: flex; flex-direction:column; align-items:center" class="meeting-form">
         <h1>Join a Zoom Consultation</h1>
+        <div class="provider-details">
+            <h2>Name: {{name}}</h2>
+            <p>Speciality: {{speciality}}</p>
+            <p>City: {{city}}</p>
+            <p>Experience: {{years}} years</p>
+        </div>
+        <div class="buttons">
         <a id="joinMeetingLink" href="#" class="std-button">Join Meeting via Zoom</a>
+        </div>
     </div>
     <div id="zmmtg-root"></div>
 
     <script type="text/javascript">
-        const searchParams = new URLSearchParams(window.location.search);
-        const slotId = searchParams.get('slotId');
-
+        //const searchParams = new URLSearchParams(window.location.search);
+        //const slotId = searchParams.get('slotId');
+        const slotId = "{{slotId}}";
         fetch('/api/create-meeting', {
             method: 'POST',
             headers: {
@@ -38,6 +37,8 @@
             });
 
     </script>
-</body>
-
-</html>
+    <style>
+        .buttons {
+            margin: var(--size-4)
+        };
+    </style>
