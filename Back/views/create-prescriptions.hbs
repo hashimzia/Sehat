@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Dashboard</title>
+    <style>
+        .provider-dashboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--size-6);
+            box-sizing: border-box;
+        }
+        h1{
+            color: var(--main-color);
+        }
+        label{
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container provider-dashboard">
+        <h1>Create Prescription</h1>
+        <form id="prescription-form">
+            <input type="hidden" name="provider_id" value="{{providerId}}">
+            <div class="form-group">
+                <label for="patient_id">Patient ID:</label>
+                <input type="text" id="patient_id" name="patient_id" class="std-input" required>
+            </div>
+            <div class="form-group">
+                <label for="prescription">Prescription:</label>
+                <textarea id="prescription" name="prescription" class="std-textarea" required></textarea>
+            </div>
+            <button type="button" class="submit-button std-button" onclick="submitPrescription()">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        async function submitPrescription() {
+            const formElement = document.getElementById('prescription-form');
+            const formData = new FormData(formElement);
+            const formProps = Object.fromEntries(formData);
+            const response = await fetch('/api/createPrescription', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formProps)
+            });
+
+            if (response.ok) {
+                alert('Prescription created successfully!');
+                formElement.reset();
+            } else {
+                alert('Failed to create prescription.');
+            }
+            
+        }
+        const prescription = document.getElementById('prescription');
+        prescription.value=`Doctor Name:\nDate:\nTime:\nPatient Name:\nAge:`
+    </script>
+</body>
+</html>

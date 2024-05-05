@@ -10,6 +10,8 @@ const dbConnection = mongoose
 
 
 const HealthProviders = new mongoose.Schema({
+    // wo bhi kya din the jab humne yeh schema banaya tha
+    userId: String,
     provider_id: String,
     first_name: String,
     last_name: String,
@@ -56,7 +58,7 @@ const HealthProvidersSchedule = new mongoose.Schema({
         Thursday: Array,
         Friday: Array,
         Saturday: Array,
-        Sunday: Array   
+        Sunday: Array
     },
     slot_duration_minutes: Number,
 })
@@ -66,9 +68,39 @@ const BookedSlots = new mongoose.Schema({
     provider_id: String,
     patient_id: String,
     date: Date,
-    start_time: String,
-    end_time: String,
+    start_time: Date,
+    end_time: Date,
     slot_duration_minutes: Number,
+    meeting: Object
 });
+mongoose.model('bookedslots', BookedSlots);
+
+const PrescriptionSchema = new mongoose.Schema({
+    provider_id: String,
+    patient_id: String,
+    medication: [{
+        name: String,
+        dosage: String,
+        frequency: String,
+        duration: String
+    }],
+    prescription_date: { type: Date, default: Date.now },
+    instructions: String
+});
+mongoose.model('prescriptions', PrescriptionSchema);
+
+const PatientSchema = new mongoose.Schema({
+    patient_id: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    dob: { type: Date, required: true },
+    height: { type: Number, required: true },
+    blood_group: { type: String, required: true },
+    gender: { type: String, required: true },
+});
+
+// Register the Patient model with Mongoose
+mongoose.model('patients', PatientSchema);
+
 
 export default dbConnection;

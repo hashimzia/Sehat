@@ -1,0 +1,37 @@
+<div class="page-container patient-dashboard">
+    <h1>Your Prescriptions</h1>
+    <div class="prescription-list">
+        {{#each prescriptions}}
+        <div class="prescription">
+            <h2>Prescription ID: {{this._id}}</h2>
+            <h3>Instructions: {{this.instructions}}</h3>
+            {{#each this.medication}}
+            <div>
+                <p>Medication: {{this.name}}</p>
+                <p>Dosage: {{this.dosage}}</p>
+                <p>Frequency: {{this.frequency}}</p>
+                <p>Duration: {{this.duration}}</p>
+            </div>
+            {{/each}}
+        </div>
+        {{/each}}
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const response = await fetch('/api/viewPrescriptions/{{patientId}}');
+        const prescriptions = await response.json();
+        const container = document.querySelector('.prescription-list');
+        container.innerHTML = prescriptions.map(prescription => `
+                <div class="prescription">
+                    <h2>Medication: ${prescription.medication_name}</h2>
+                    <p>Dosage: ${prescription.dosage}</p>
+                    <p>Frequency: ${prescription.frequency}</p>
+                    <p>Duration: ${prescription.duration}</p>
+                    <p>Instructions: ${prescription.instructions}</p>
+                </div>
+            `).join('');
+    });
+</script>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Sehat</title>
+
+  <link rel="stylesheet" href="/stylesheets/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <link rel="icon" href="../../public/assets/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+</head>
+<script async crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_dGhvcm91Z2gtc3dhbi0xNy5jbGVyay5hY2NvdW50cy5kZXYk"
+  src="https://thorough-swan-17.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript">
+
+  </script>
+
+<body>
+    <div class="page-container">
+        {{{ body }}}
+    </div>
+    <script>
+      window.addEventListener("load", async function () {
+        await Clerk.load();
+        const userbuttonDiv =
+          document.getElementById('nav');
+        Clerk.mountUserButton(userbuttonDiv, { 'afterSignOutUrl': 'http://localhost:5173/login' });
+      })
+
+      signOutButton.onclick = async function () {
+        await Clerk.signOut();
+        Clerk.navigate('/login'); // Redirect to login after sign out
+      };
+    </script>
+</body>
+
+</html>
+
+
+<style>
+
+ #app {
+    text-align: center;
+  }
+
+  #nav {
+    width: 100%;
+  }
+
+  .role-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+  }
+
+  h1 {
+    color: var(--main-color);
+    font-size: var(--size-8);
+    text-align: center;
+  }
+
+  .label {
+    color: white;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--size-6);
+    gap: var(--size-7);
+    background-color: var(--main-color);
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: var(--size-2);
+    border-bottom-right-radius: var(--size-8);
+  }
+
+  a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: var(--size-4-5);
+    font-weight: 600;
+    transition: ease-in-out 0.3s;
+    cursor: pointer;
+  }
+
+  a:hover {
+    transition: ease-in-out 0.3s;
+    scale: 1.05;
+  }
+
+  a:hover:nth-child(odd) {
+    transform: rotate(2deg);
+  }
+
+  a:hover:nth-child(even) {
+    transform: rotate(-2deg);
+  }
+
+  footer {
+    border-top-left-radius: var(--size-8);
+    margin-top: var(--size-8);
+    padding: var(--size-6);
+    background-color: var(--alternate-color);
+    color: var(--white);
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .footer-section {
+    flex: 1;
+  }
+
+  .footer-section ul {
+    list-style-type: none;
+  }
+
+  .footer-bottom {
+    text-align: center;
+    padding-top: var(--size-6);
+  }
+
+  .cl-internal-b3fm6y,
+  .cl-internal-uyu30o {
+    display: none;
+  }
+
+  .cl-internal-1fsg6zy {
+    background-color: var(--main-color);
+  }
+</style>

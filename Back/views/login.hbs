@@ -1,3 +1,4 @@
+
 <div class="page-container login-page">
     <div class="container">
         <div class="left">
@@ -15,54 +16,52 @@
         </div>
     </div>
 </div>
+</div>
+<script>
+  window.addEventListener("load", async function () {
+    await Clerk.load();
+
+    // Check if a user is already signed in
+    if (Clerk.user) {
+      // If a user is signed in, redirect to the dashboard or relevant page
+      Clerk.navigate('/');
+
+      document.getElementById("app").innerHTML = `
+        <div id="user-button"></div>
+      `;
+
+      const userButtonDiv = document.getElementById("user-button");
+      Clerk.mountUserButton(userButtonDiv);
+    } else {
+      document.getElementById("app").innerHTML = `
+        <div id="sign-in"></div>
+      `;
+
+      const signInDiv = document.getElementById("sign-in");
+
+      // Mount the sign-in component and specify redirection after sign-in
+      Clerk.mountSignIn(signInDiv, {
+        afterSignIn: () => Clerk.navigate('/') // Redirect after successful sign-in
+      });
+    }
+  });
+</script>
+
 <style>
-.login-page .container{
+  .page-container{
+    gap: var(--size-6);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    overflow: hidden;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    box-sizing: border-box;
-}
-.login-page .left{
-    flex: 1 1 auto;
+  }
+  #app {
     display: flex;
-    padding: 2rem;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    background-color: var(--main-color);
-    height: 100%;
-}
-.login-page .right{
-    flex: 0 0 auto;
-    display: grid;
-    padding: 2rem;
-    flex-direction: column;
-    height: 100%;
-    min-width: 50%;
-
-}
-.login-page .branding{
-    font-weight: 700;
-    color: var(--white);
-}
-.login-page .loginButton{
-    color: var(--main-color);
-    align-self: flex-start;
-    justify-self: flex-end;
-    position: absolute;
-}
-.login-page .loginContainer{
-    display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    align-self: center;
-    justify-self: center;
-    gap: 0.5rem;
-}
+    box-sizing: border-box;
+    background-size: cover;
+    background-position: center;
+  }
 </style>

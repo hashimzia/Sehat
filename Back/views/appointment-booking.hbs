@@ -1,112 +1,273 @@
 <script>
+    const searchParams = new URLSearchParams(window.location.search);
+    let provider_id = searchParams.get('provider_id')
+    //let provider_id;
+    let target_date;
+    let slots = [];
 
     // wait for the page to load
-    document.addEventListener('DOMContentLoaded', function() {
-        
-      });
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchProviderDetails();
+        // listen for chanegs to the calendar-input
+        document.getElementById('calendar-input').addEventListener('input', async () => {
+            await setTargetDate();
+            await fetchProviderOpenSlots(provider_id, target_date);
+        });
 
+    });
 
+    async function fetchProviderDetails() {
+        // Assuming the API can handle provider_id as a query for specific details
+        const query = encodeURIComponent(provider_id);
+        const response = await fetch(`/api/searchHealthProvidersId?query=${query}`);
+        const provider = await response.json();
+        if (provider) {
+            renderProviderDetails(provider);
+            return provider['provider_id']
+        } else {
+            console.log('No provider found with id:', provider_id);
+        }
+    }
+    async function fetchProviderOpenSlots(provider_id, target_date){
+        fetch(`/api/getOpenSlots?provider_id=${provider_id}&target_date=${target_date}`)
+            .then(response => response.json())
+            .then(data => {
+                slots = data;
+                renderSlots(slots);
+            });
+    }
+
+    function renderProviderDetails(provider) {
+        const providerDetails = document.querySelector('.provider-details');
+        providerDetails.innerHTML = `
+        <h2>${provider.first_name} ${provider.last_name} - ${provider.specialty}</h2>
+        <p>City: ${provider.city}</p>
+        <p>Experience: ${provider.years_of_experience} years</p>
+    `;
+    }
+
+    function renderSlots(slots) {
+        let slotContainer = document.querySelector('.slot-container');
+        slotContainer.innerHTML = '';
+        let html = ''
+        slots.forEach(slot => {
+            let local_time = new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            html += `
+                <div class="slot" onclick="selectSlot(this)" data-end-time="${slot.end_time}" data-start-time="${slot.start_time}" data-slot-duration-minutes="${slot.slot_duration_minutes}"> 
+                    ${local_time}
+                </div>
+            `;
+        });
+        slotContainer.innerHTML = html;
+    }
+
+    function setTargetDate() {
+        target_date = document.getElementById('calendar-input').value;
+    }
+    function selectSlot(slot) {
+        let selected = document.querySelector('.selected');
+        if (selected) {
+            selected.classList.remove('selected');
+        }
+        slot.classList.add('selected');
+        showConfirmationButton();
+    }
+    function showConfirmationButton() {
+        let button = document.getElementById("confirmation-button");
+        button.style.display = "block";
+    }
+    function confirmAppointment() {
+        let selectedSlot = document.querySelector('.selected');
+        let start_time = selectedSlot.getAttribute('data-start-time');
+        let end_time = selectedSlot.getAttribute('data-end-time');
+        let slot_duration_minutes = selectedSlot.getAttribute('data-slot-duration-minutes');
+        let local_time = selectedSlot.innerText;
+        bookAppointment(provider_id, target_date, start_time, end_time, slot_duration_minutes);
+
+        document.querySelector('.slot-container').innerHTML = ``;
+        document.querySelector('#confirmation-button').style.display = 'none';
+    
+
+        let confirmationMessage = document.createElement('div');
+        confirmationMessage.innerHTML = `
+            <h2>Appointment Confirmed</h2>
+            <p>Date: ${target_date}</p>
+            <p>Time: ${local_time}</p>
+        `;
+        document.querySelector('.slot-container').appendChild(confirmationMessage);
+    }
+    function bookAppointment(provider_id, target_date, start_time, end_time, slot_duration_minutes){
+        // send the selected slot to the server
+        let data = {
+            provider_id: provider_id,
+            target_date: target_date,
+            start_time: start_time,
+            end_time: end_time,
+            slot_duration: slot_duration_minutes
+        };
+        let jsonData = JSON.stringify(data);
+        console.log(jsonData)
+        fetch('api/bookSlot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
 </script>
 <div class="page-container appointment-booking-page">
+
     <h1>Appointment Booking</h1>
 
-    <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: max-height;">
+    <div class="provider-details"></div>
 
     <div id="calendar">
-        <input type="datetime" name="date" id="">
+        <input type="date" id="calendar-input">
     </div>
 
+    <div class="slot-container">
+
     </div>
+    <button class="std-button" id="confirmation-button" style="width: var(--size-10);" onclick="confirmAppointment()">Confirm</button>
 
 </div>
+
 <style>
-.appointment-booking-page{
-    padding: var(--size-6);
-    box-sizing: border-box;
-}
+    #confirmation-button{
+        display: none;
+    }
+    .appointment-booking-page {
+        padding: var(--size-6);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: var(--size-3);
+    }
 
-.appointment-booking-page h1{
-    color: var(--main-color);
-}
+    .appointment-booking-page h1 {
+        color: var(--main-color);
+    }
 
+    .appointment-booking-page .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
 
-.appointment-booking-page .wrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-.appointment-booking-page .container{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    gap: 0.5rem;
-}
-.appointment-booking-page .divider{
-    width: 90%;
-    border: 1px solid var(--main-color);
-}
-.appointment-booking-page .slot-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-.appointment-booking-page .slot{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5rem;
-    border: 1px solid var(--std-black);
-    border-radius: 0.15rem;
-    min-width: 7rem;
-    margin: 0.25rem;
-    font-weight: 500;
-    transition: ease-in-out 0.2s;
-}
-.appointment-booking-page .slot:hover{
-    background-color: var(--std-black);
-    color: var(--std-white);
-    cursor: pointer;
-}
-.appointment-booking-page .selected{
-    background-color: var(--main-color);
-    color: var(--std-white);
-}
-.appointment-booking-page .question{
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    color: var(--std-white);
-}
-.appointment-booking-page .questionWrapper{
-    display: flex;
-    flex-direction: row;
-}
-.appointment-booking-page .prompt{
-    font-size: var(--default-font-size);
-    font-weight: var(--default-font-weight);
-}
-.appointment-booking-page input[type="text"]{
-    margin-left: 0.5rem;
-    display: inline;
-    background-color: transparent;
-    color: var(--std-gray);
-    font-size: var(--default-font-size);
-    font-weight: var(--default-font-weight);
-    vertical-align: middle;
-    display: flex;
-}
-.appointment-booking-page input[type=text]:focus{
-    outline: none;
-}
-:root{
-    --default-font-size: 2.5rem;
-    --default-font-weight: bold;
-}
+    .appointment-booking-page .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        gap: 0.5rem;
+    }
+
+    .appointment-booking-page .divider {
+        width: 90%;
+        border: 1px solid var(--main-color);
+    }
+
+    .appointment-booking-page .slot-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-width: var(--size-15);
+        max-height: var(--size-13);
+        gap: var(--size-2);
+        height: 50%;
+    }
+
+    .appointment-booking-page .slot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--main-color);
+        font-weight: 600;
+        background-color: var(--white);
+        border-radius: var(--size-1);
+        min-width: var(--size-10);
+        font-size: var(--size-4);
+        padding: var(--size-2) 0;
+        border: 2px solid var(--main-color);
+        transition: ease-in-out 0.3s;
+    }
+
+    .appointment-booking-page .slot:hover {
+        scale: 1.03;
+        transition: ease-in-out 0.3s;
+        cursor: pointer;
+    }
+
+    .slot:hover:nth-child(odd) {
+        transform: rotate(2deg);
+    }
+
+    .slot:hover:nth-child(even) {
+        transform: rotate(-2deg);
+    }
+
+    .appointment-booking-page .selected {
+        background-color: var(--main-color);
+        color: var(--white);
+    }
+
+    .appointment-booking-page .question {
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        color: var(--std-white);
+    }
+
+    .appointment-booking-page .questionWrapper {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .appointment-booking-page .prompt {
+        font-size: var(--default-font-size);
+        font-weight: var(--default-font-weight);
+    }
+
+        {
+            {
+            !-- .appointment-booking-page input[type="text"] {
+                margin-left: 0.5rem;
+                display: inline;
+                background-color: transparent;
+                color: var(--std-gray);
+                font-size: var(--default-font-size);
+                font-weight: var(--default-font-weight);
+                vertical-align: middle;
+                display: flex;
+            }
+
+            .appointment-booking-page input[type=text]:focus {
+                outline: none;
+            }
+
+            --
+        }
+    }
+
+    :root {
+        --default-font-size: 2.5rem;
+        --default-font-weight: bold;
+    }
 </style>

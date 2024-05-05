@@ -1,0 +1,44 @@
+<div class="page-container">
+    <div class="dashboard-container">
+        <h1 style="color: var(--alternate-color); width: 100%;">Patient Dashboard</h1>
+        <div class="dashboard-content">
+            <div style="max-width: var(--size-12);border: 2px solid red;">
+                <button onclick="location.href='/create-appointment'" class="std-button">Create Appointment</button>
+                <button onclick="location.href='/view-prescriptions'" class="std-button">View Prescriptions</button>
+                <button onclick="location.href='/search'" class="std-button">Search Providers</button>
+                <button onclick="location.href='/view-appointments'" class="std-button">View Appointments</button>
+            </div>
+            <div class="patient-schedule">
+
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: var(--size-6);
+        gap: var(--size-6);
+        box-sizing: border-box;
+        height: 100vh;
+        width: 100%;
+    }
+    .dashboard-content{
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        border: 2px solid green;
+        box-sizing: border-box;
+        width: 100%;
+    }
+    .patient-schedule{
+        display: flex;
+        min-width: var(--size-13);
+        border: 2px solid orange;
+        min-height: var(--size-9);
+    }
+</style>
