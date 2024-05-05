@@ -129,6 +129,12 @@ app.get('/search', async (req, res) => {
   }
   res.render('search');
 })
+app.get('/meeting-end-review', (req, res) => {
+  res.render('meeting-end-review', { layout: 'main', hideHeader: true });
+})
+
+app.get('/prescriptions', (req, res) => {
+  res.render('prescriptions');
 app.get('/provider-availability', async (req, res) => {
   const isPatient = await patientCheck(req.auth.userId);
   if (!isPatient) {
