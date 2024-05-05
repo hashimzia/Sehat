@@ -135,6 +135,8 @@ app.get('/meeting-end-review', (req, res) => {
 
 app.get('/prescriptions', (req, res) => {
   res.render('prescriptions');
+})
+  
 app.get('/provider-availability', async (req, res) => {
   const isPatient = await patientCheck(req.auth.userId);
   if (!isPatient) {
