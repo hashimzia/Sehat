@@ -2,19 +2,45 @@
     <div class="dashboard-container">
         <h1 style="color: var(--alternate-color); width: 100%;">Patient Dashboard</h1>
         <div class="dashboard-content">
-            <div style="max-width: var(--size-12);border: 2px solid red;">
-                <button onclick="location.href='/create-appointment'" class="std-button">Create Appointment</button>
-                <button onclick="location.href='/view-prescriptions'" class="std-button">View Prescriptions</button>
-                <button onclick="location.href='/search'" class="std-button">Search Providers</button>
-                <button onclick="location.href='/view-appointments'" class="std-button">View Appointments</button>
-            </div>
             <div class="patient-schedule">
-
+                <h2>Upcoming Appointment:</h2>
+                <h3>{{name}}</h3>
+                <p>{{time}}</p>
+                <p>{{date}}</p>
+                <button onclick="location.href='/appointment-zoom/{{id}}'" class='book-button'>Join meeting</button>
             </div>
+            <div class="class-div">
+                {{!-- <button onclick="location.href='/create-appointment'" class="std-button">Create Appointment</button> --}}
+                <div class="card std-button" onclick="location.href='/view-prescriptions'">
+                    <h3>View Prescriptions</h3>
+                    <p>View all Prescriptions provided to you by doctors through the Sehat Healthcare Management System</p>
+                </div>
+                <div class="card std-button" onclick="location.href='/search'">
+                    <h3>Search</h3>
+                    <p>Search all the health providers available on the Sehat Healthcare Management system</p>
+                </div>
+                <div class="card std-button" onclick="location.href='/view-appointments'">
+                    <h3>View Appointments</h3>
+                    <p>View all appointments booked with health providers through the Sehat Healthcare Management System</p>
+                </div>
+            </div>
+            
         </div>
     </div>
 {{!-- </div> --}}
 <style>
+    .card p{
+        font-size: smaller;
+    }
+    .class-div{
+        display: flex;
+        margin-top: 30px;
+    }
+    .card{
+        height: 120px;
+        text-align: center;
+        width: 300px;
+    }
     .dashboard-container {
         display: flex;
         flex-direction: column;
@@ -23,22 +49,45 @@
         padding: var(--size-6);
         gap: var(--size-6);
         box-sizing: border-box;
-        height: 100vh;
+        max-height: 100vh;
         width: 100%;
     }
     .dashboard-content{
         display: flex;
-        flex-direction: row;
-        align-items: flex-start;
+        flex-direction: column;
+        align-items: center;
         justify-content: space-between;
-        border: 2px solid green;
         box-sizing: border-box;
         width: 100%;
     }
     .patient-schedule{
-        display: flex;
+        /*display: flex;*/
         min-width: var(--size-13);
-        border: 2px solid orange;
         min-height: var(--size-9);
+        
+        background-color: var(--opacity-black-3);
+        min-width: var(--size-13);
+        padding: var(--size-4);
+        border-radius: var(--size-1);
+        width: 43%;
+        text-align: center;
+    }
+    .patient-schedule p {
+        margin: 0;
+    }
+    .patient-schedule h3{
+        margin-top: var(--size-6);
+    }
+    .book-button {
+        background-color: var(--alternate-color);
+        color: white;
+        padding: var(--size-1) var(--size-4);
+        border-radius: var(--size-1);
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: var(--size-4);
+        margin: var(--size-2) 0;
     }
 </style>

@@ -20,6 +20,7 @@ import querystring from 'querystring'
 import { config } from 'dotenv';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
+import { ConnectionClosedEvent } from 'mongodb';
 config()
 
 // import Cookies from 'cookies';
@@ -88,7 +89,6 @@ const HealthProvidersRatings = mongoose.model('healthprovidersratings');
 const HealthProvidersSchedule = mongoose.model('healthprovidersschedule');
 const BookedSlots = mongoose.model('bookedslots');
 const atv = await BookedSlots.find({});
-console.log(atv)
 app.listen(port, () => {
   console.log(`backend listening on port ${port}`)
 })
@@ -96,7 +96,20 @@ app.listen(port, () => {
 app.get('/', async (req, res) => {
   const isPatient = await patientCheck(req.auth.userId);
   if (isPatient) {
-    return res.render('patient-dashboard')
+    const userId = req.auth.userId;
+    let slot = await BookedSlots.find({patient_id:userId}).sort({starting_time: -1}).limit(1)
+    slot = slot[0]
+    if (!slot){
+      return res.render('patient-dashboard')
+    }
+    const hours = slot.start_time.getHours().toString().padStart(2, '0'); // Ensure two digits for hours
+    const minutes = slot.start_time.getMinutes().toString().padStart(2, '0'); // Ensure two digits for minutes
+    const time = `${hours}:${minutes}`;
+    const date = slot.date.toDateString();
+    const providerDetails = await HealthProviders.findOne({provider_id:slot.provider_id})
+    const name = providerDetails.first_name + " " +providerDetails.last_name;
+    const id = slot._id;
+    return res.render('patient-dashboard',{name,time,date,id})
   } else {
     return res.render('doctor-dashboard')
   }
@@ -107,12 +120,10 @@ app.get('/login', (req, res) => {
 })
 app.get('/appointment-zoom/:slotId', async(req, res) => {
   const slotId = req.params.slotId;
-  console.log(slotId)
   
   try {
     const slot = await BookedSlots.findById(slotId)
     const providerDetails = await HealthProviders.findOne({provider_id:slot.provider_id})
-    console.log(providerDetails)
     const name = providerDetails.first_name + " " +providerDetails.last_name;
     const speciality = providerDetails.specialty;
     const years = providerDetails.years_of_experience;
@@ -127,7 +138,6 @@ app.get('/appointment-zoom/:slotId', async(req, res) => {
     res.render('error',{errorCode:500,errorMessage:"Incorrect path" })
   }
 })
-
 // app.get('/view-appointments', async(req, res) => {
 //   const userId = req.auth.userId;
 //   console.log(userId)
@@ -184,20 +194,20 @@ app.get('/view-appointments', async (req, res) => {
       if (isPatient) {
           appointments = await BookedSlots.find({ patient_id: userId });
       } else {
-          const doctorId = await HealthProviders.find({userId:userId});
+          let doctorId = await HealthProviders.findOne({userId:userId});
           const providerId = doctorId.provider_id;
           appointments = await BookedSlots.find({ provider_id: providerId });
       }
 
       for (const appointment of appointments) {
           let name;
-          console.log(name)
           if (isPatient) {
               const doctor = await HealthProviders.findOne({ provider_id: appointment.provider_id });
               name = `${doctor.first_name} ${doctor.last_name}`;
           } else {
-              const patient = await Patient.findOne({ provider_id: appointment.provider_id });
-              name = `${patient.first_name} ${patient.last_name}`;
+              const patient = await Patient.findOne({ patient_id: appointment.patient_id });
+              console.log(patient)
+              name = patient.name;
           }
 
           const hours = appointment.start_time.getHours().toString().padStart(2, '0'); // Ensure two digits for hours
@@ -211,7 +221,6 @@ app.get('/view-appointments', async (req, res) => {
               id: appointment._id
           });
       }
-      console.log(appointmentsArray)
       if (appointmentsArray.length!=0){
         res.render('view-appointments', { appointmentsArray });
       } else{
@@ -288,7 +297,16 @@ app.get('/view-prescriptions', async (req, res) => {
   if (!isPatient) {
     return res.send("Unauthorized")
   }
-  res.render('view-prescriptions');
+  const patientId = req.auth.userId;
+  const Prescription = mongoose.model('prescriptions');
+  Prescription.deleteMany({});
+  try {
+    let prescriptions = await Prescription.find({ patient_id: patientId }).lean();
+    res.render('view-prescriptions',{prescriptions});
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error occurred while fetching prescriptions");
+  }
 })
 
 // full-text search as defined in db.mjs text index
@@ -344,16 +362,19 @@ app.post('/api/create-meeting', async (req, res) => {
   };
 
   const data = {
-    topic: 'New create',
-    type: 1, // Type 1 is an instant meeting
+    topic: 'New Consultation',
+    type: 2, // Type 1 is an instant meeting
+    "start_time": "2024-05-07T14:00:00",
     settings: {
-      host_video: "true",
-      participant_video: "true"
+      host_video: "false",
+      participant_video: "false",
+      join_before_host: "true"  // Allow participants to join before the host
     }
   };
 
   try {
     const response = await axios.post('https://api.zoom.us/v2/users/me/meetings', data, config);
+    console.log(response)
     slot.meeting = response.data;
     const sdkJWT = generateZoomMeetingSDKJWT(response.data.id, 1);
     // console.log(sdkJWT)
@@ -627,33 +648,37 @@ app.get('/patient-dashboard/:patientId', async (req, res) => {
   }
 });
 
+app.post('/api/verifyUser',async (req,res)=>{
+  const {patient_id} = req.body
+  const Patient = mongoose.model('patients');
+  let patient = await Patient.findOne({patient_id:patient_id})
+
+  const doctor = await HealthProviders.findOne({userId:req.auth.userId})
+  try{
+    patient = patient.toObject()
+    patient["provider_name"]=doctor.first_name
+    res.send(patient)
+  } catch {
+    res.send({})
+  }
+})
 
 
 // POST endpoint to create a new prescription
 app.post('/api/createPrescription', async (req, res) => {
-  const {
+  let {
     provider_id,
     patient_id,
-    medication_name,
-    dosage,
-    frequency,
-    duration,
     instructions
   } = req.body;
 
-  // Construct medication array from the flat structure
-  const medication = [{
-    name: medication_name,
-    dosage: dosage,
-    frequency: frequency,
-    duration: duration
-  }];
+  const provider = await HealthProviders.findOne({userId:req.auth.userId})
+  provider_id = provider.provider_id
 
 
   const newPrescription = new mongoose.model('prescriptions')({
     provider_id,
     patient_id,
-    medication,  // this now matches the expected array structure
     instructions
   });
 
@@ -706,18 +731,9 @@ app.get('/api/check-patient', async (req, res) => {
   }
 });
 // GET endpoint for a patient to view their prescriptions
-app.get('/api/viewPrescriptions/:patientId', async (req, res) => {
-  const { patientId } = req.params;
-  // console.log(patientId);
-  const Prescription = mongoose.model('prescriptions');
-
-  try {
-    const prescriptions = await Prescription.find({ patient_id: patientId });
-    res.status(200).send(prescriptions);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error occurred while fetching prescriptions");
-  }
+app.post('/api/viewPrescriptions', async (req, res) => {
+  // const { patientId } = req.params;
+  
 });
 // homepage
 app.get('/', (req, res) => {

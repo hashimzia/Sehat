@@ -30,15 +30,41 @@
                 <label for="patient_id">Patient ID:</label>
                 <input type="text" id="patient_id" name="patient_id" class="std-input" required>
             </div>
+            <button type="button" class=" std-button" onclick="verifyUser()">Autofill User</button>
+
             <div class="form-group">
-                <label for="prescription">Prescription:</label>
-                <textarea id="prescription" name="prescription" class="std-textarea" required></textarea>
+                <label for="instructions">Instructions:</label>
+                <textarea id="instructions" name="instructions" class="std-textarea" required></textarea>
             </div>
             <button type="button" class="submit-button std-button" onclick="submitPrescription()">Submit</button>
         </form>
     </div>
 
     <script>
+
+        async function verifyUser(){
+            const formElement = document.getElementById('patient_id');
+            const formProps = formElement.value;
+            const response = await fetch('/api/verifyUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({patient_id:formProps})
+            });
+
+            if (response.ok) {
+                const prescription = document.getElementById('instructions');
+                const data = await response.json()
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString(); // Gets the date in local format
+                 const formattedTime = now.toLocaleTimeString(); //
+                prescription.value=`Doctor Name: ${data.provider_name}\nDate: ${formattedDate}\nTime: ${formattedTime}\nPatient Name: ${data.name}`
+                console.log(data)
+            } else {
+            }
+
+        }
         async function submitPrescription() {
             const formElement = document.getElementById('prescription-form');
             const formData = new FormData(formElement);
@@ -59,8 +85,8 @@
             }
             
         }
-        const prescription = document.getElementById('prescription');
-        prescription.value=`Doctor Name:\nDate:\nTime:\nPatient Name:\nAge:`
+        const prescription = document.getElementById('instructions');
+        prescription.value=`Doctor Name:\nDate:\nTime:\nPatient Name:`
     </script>
 </body>
 </html>

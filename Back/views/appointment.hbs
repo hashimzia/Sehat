@@ -8,7 +8,7 @@
             <p>Experience: {{years}} years</p>
         </div>
         <div class="buttons">
-        <a id="joinMeetingLink" href="#" class="std-button">Join Meeting via Zoom</a>
+        <a id="joinMeetingLink" href="#" class="std-button" onclick="window.open('http://google.com','_blank')">Join Meeting via Zoom</a>
         </div>
     </div>
     <div id="zmmtg-root"></div>
@@ -30,7 +30,10 @@
             .then(data => {
                 console.log(data)
                 const joinLinkButton = document.getElementById('joinMeetingLink');
-                joinLinkButton.href = data.join_url;
+                joinLinkButton.href = `/addReview?={{slotId}}`
+                joinLinkButton.onclick = function() {
+    window.open(data.join_url, '_blank');
+};
             })
             .catch(error => {
                 console.error('Error creating or joining meeting', error);

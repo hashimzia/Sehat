@@ -3,35 +3,24 @@
     <div class="prescription-list">
         {{#each prescriptions}}
         <div class="prescription">
-            <h2>Prescription ID: {{this._id}}</h2>
-            <h3>Instructions: {{this.instructions}}</h3>
-            {{#each this.medication}}
-            <div>
-                <p>Medication: {{this.name}}</p>
-                <p>Dosage: {{this.dosage}}</p>
-                <p>Frequency: {{this.frequency}}</p>
-                <p>Duration: {{this.duration}}</p>
-            </div>
-            {{/each}}
+            <h2>Prescription</h2>
+            <p>{{this.instructions}}</p>
         </div>
         {{/each}}
 
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        const response = await fetch('/api/viewPrescriptions/{{patientId}}');
-        const prescriptions = await response.json();
-        const container = document.querySelector('.prescription-list');
-        container.innerHTML = prescriptions.map(prescription => `
-                <div class="prescription">
-                    <h2>Medication: ${prescription.medication_name}</h2>
-                    <p>Dosage: ${prescription.dosage}</p>
-                    <p>Frequency: ${prescription.frequency}</p>
-                    <p>Duration: ${prescription.duration}</p>
-                    <p>Instructions: ${prescription.instructions}</p>
-                </div>
-            `).join('');
-    });
-</script>
+<style>
+    .prescription p {
+        margin: 0;
+        white-space: pre-wrap;  /* Maintains whitespace formatting and breaks */
+    }
+    .prescription {
+        background-color: var(--opacity-black-3);
+        min-width: var(--size-13);
+        padding: var(--size-4);
+        border-radius: var(--size-1);
+        margin: var(--size-2);
+    }
+</style>
