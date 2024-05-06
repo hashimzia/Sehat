@@ -38,6 +38,8 @@ app.use(bodyParser.json());
 
 
 
+
+
 const healthpvdobject = {
   provider_id: '01HV9GW3JNKFZTQTGCQ5GGZV86',
   patient_id: 'user_2fYnCDKa3TOAXA8WFE7tFqFIb8l'
@@ -88,6 +90,7 @@ const Reviews = mongoose.model('reviews');
 const HealthProvidersRatings = mongoose.model('healthprovidersratings');
 const HealthProvidersSchedule = mongoose.model('healthprovidersschedule');
 const BookedSlots = mongoose.model('bookedslots');
+const Patient = mongoose.model('patients');
 const atv = await BookedSlots.find({});
 app.listen(port, () => {
   console.log(`backend listening on port ${port}`)
@@ -97,11 +100,18 @@ app.get('/', async (req, res) => {
   const isPatient = await patientCheck(req.auth.userId);
   if (isPatient) {
     const userId = req.auth.userId;
+    let user = await Patient.findOne({patient_id:userId})
+    
+    if (!user){
+      return res.redirect('/patient-onboarding')
+    }
     let slot = await BookedSlots.find({patient_id:userId}).sort({starting_time: -1}).limit(1)
     slot = slot[0]
     if (!slot){
       return res.render('patient-dashboard')
     }
+    console.log(user)
+    
     const hours = slot.start_time.getHours().toString().padStart(2, '0'); // Ensure two digits for hours
     const minutes = slot.start_time.getMinutes().toString().padStart(2, '0'); // Ensure two digits for minutes
     const time = `${hours}:${minutes}`;
@@ -244,7 +254,8 @@ app.get('/appointment-booking', async (req, res) => {
 })
 app.get('/search', async (req, res) => {
   const isPatient = await patientCheck(req.auth.userId);
-  if (!isPatient) {
+  const registered = await Patient.findOne({patient_id:req.auth.userId})
+  if (!isPatient || !registered) {
     return res.send("Unauthorized")
   }
   res.render('search');

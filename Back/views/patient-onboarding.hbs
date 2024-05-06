@@ -1,29 +1,4 @@
-<script>
-    document.getElementById('patientForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(this);
-        fetch('http://localhost:5173/api/register-patient', {
-            method: 'POST',
-            body: JSON.stringify(Object.fromEntries(formData)),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            })
-            .then(response => response.json())
-            .then(data => alert('Patient registered successfully');
-            window.location.href = '/patient-dashboard';
-            )
-            .catch(error => alert('Error registering patient: ' + error));
-        });
 
-        window.addEventListener("load", async function () {
-        await Clerk.load();
-        document.getElementById('patient_id').value=Clerk.user.id
-        document.getElementById('name').value=Clerk.user.fullName
-        document.getElementById('email').value=Clerk.user.emailAddresses[0].emailAddress
-        console.log(Clerk.user)
-    });    
-</script>
 <div class="page-container">
     <h1>Patient Onboarding</h1>
     <form id="patientForm">
@@ -107,4 +82,31 @@
         margin-top: 10px;
     }
 </style>
+<script>
+    document.getElementById('patientForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('http://localhost:5173/api/register-patient', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Patient registered successfully');
+            window.location.href = '/patient-dashboard';
+        })
+        .catch(error => alert('Error registering patient: ' + error));
+}); // This bracket closes the addEventListener function
 
+window.addEventListener("load", async function () {
+    await Clerk.load();
+    document.getElementById('patient_id').value = Clerk.user.id;
+    document.getElementById('name').value = Clerk.user.fullName;
+    document.getElementById('email').value = Clerk.user.emailAddresses[0].emailAddress;
+    console.log(Clerk.user);
+});
+
+</script>
