@@ -261,7 +261,7 @@ app.get('/search', async (req, res) => {
   res.render('search');
 })
 app.get('/meeting-end-review', (req, res) => {
-  res.render('meeting-end-review', { layout: 'main', hideHeader: true });
+  res.render('meeting-end-review');
 })
 
 app.get('/prescriptions', (req, res) => {
@@ -406,12 +406,19 @@ app.post('/api/addReview', async (req, res) => {
 
   const data = req.body;
   const rating_ = parseInt(data.rating);   // convert to number //! check for errors here
-  // console.log(data);
-
+  
+  const patient_id = req.auth.userId;
+  const slotId = data.slotId;
+  const slot = BookedSlots.findOne({_id:slotId})
+  if (!slot){
+    return res.status(500).send("Slot not found")
+  }
+  const provider_id_ = slot.provider_id
+  
   // create a new review, timestamp(Date.now()) is automatically added 
   const review = new Reviews({
-    provider_id: data.provider_id,
-    patient_id: data.patient_id,
+    provider_id: provider_id_,
+    patient_id: patient_id,
     review: data.review,
     rating: rating_,
   });
@@ -477,7 +484,6 @@ app.get('/api/getReviews', async (req, res) => {
   }
   res.status(200).send(returnObject);
 });
-
 // Routes for scheduling appointments
 // set provider availability by weekday
 app.post('/api/setProviderAvailability', async (req, res) => {
@@ -750,6 +756,10 @@ app.post('/api/viewPrescriptions', async (req, res) => {
 app.get('/', (req, res) => {
   res.render('home');
 });
+app.get('/test', (req, res) => {
+  res.render('patient-onboarding');
+});
+
 
 
 const clientId = process.env.ZOOM_CLIENT_ID;

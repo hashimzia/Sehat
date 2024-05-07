@@ -1,16 +1,34 @@
-{{!-- <div class="page-container"> --}}
+<script>
+    // how to reference hbs variables in js
+    const name = "{{name}}"
+    const time = "{{time}}"
+    const date = "{{date}}"
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (name === "" || time === "" || date === "") {
+            document.querySelector('.patient-schedule').style.display = 'none'
+        }
+    })
+
+</script>
+<div class="page-container">
     <div class="dashboard-container">
         <h1 style="color: var(--alternate-color); width: 100%;">Patient Dashboard</h1>
         <div class="dashboard-content">
             <div class="patient-schedule">
                 <h2>Upcoming Appointment:</h2>
-                <h3>{{name}}</h3>
+                <h3 style="color: var(--alternate-color)">{{name}}</h3>
                 <p>{{time}}</p>
+                <div></div>
                 <p>{{date}}</p>
-                <button onclick="location.href='/appointment-zoom/{{id}}'" class='book-button'>Join meeting</button>
+                <div style="width: 40%;">
+                    <button onclick="location.href='/appointment-zoom/{{id}}'" class='book-button'>Join meeting</button>
+                </div>
             </div>
-            <div class="class-div">
-                {{!-- <button onclick="location.href='/create-appointment'" class="std-button">Create Appointment</button> --}}
+            
+            <div style="margin-bottom: var(--size-4);"></div>
+
+            {{!-- <div class="class-div">
                 <div class="card std-button" onclick="location.href='/view-prescriptions'">
                     <h3>View Prescriptions</h3>
                     <p>View all Prescriptions provided to you by doctors through the Sehat Healthcare Management System</p>
@@ -23,12 +41,67 @@
                     <h3>View Appointments</h3>
                     <p>View all appointments booked with health providers through the Sehat Healthcare Management System</p>
                 </div>
-            </div>
+            </div> --}}
             
+            <div class="cards-container">
+                <div class="new-card" onclick="location.href='/view-prescriptions'">
+                    <h3>View Prescriptions</h3>
+                    <p>View all Prescriptions provided to you by doctors through the Sehat Healthcare Management System</p>
+                </div>
+                <div class="new-card" onclick="location.href='/search'">
+                    <h3>Search</h3>
+                    <p>Search all the health providers available on the Sehat Healthcare Management system</p>
+                </div>
+                <div class="new-card" onclick="location.href='/view-appointments'">
+                    <h3>View Appointments</h3>
+                    <p>View all appointments booked with health providers through the Sehat Healthcare Management System</p>
+                </div>
+            </div>
         </div>
     </div>
-{{!-- </div> --}}
+</div>
 <style>
+    .cards-container{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--size-6);
+    }
+    .new-card{
+        display: flex;
+        flex-direction: column;
+        min-width: var(--size-13);
+        max-width: var(--size-13);
+        min-height: var(--size-11);
+        min-height: var(--size-11);
+        background-color: var(--main-color);
+        color: var(--white);
+        border-radius: var(--size-2);
+        border: 2px solid transparent;
+        transition: ease-in-out 0.2s;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        padding: var(--size-2) var(--size-3);
+        gap: var(--size-3);
+    }
+    .new-card:hover{
+        background-color: var(--white);
+        border: 2px solid var(--main-color);
+        color: var(--main-color);
+        transition: ease-in-out 0.2s;
+    }
+    .new-card h3{
+        font-size: var(--size-5);
+    }
+    .new-card p{
+        font-size: var(--size-4);
+        font-weight: 500;
+        text-align: center;
+    }
+
+
     .card p{
         font-size: smaller;
     }
@@ -61,16 +134,17 @@
         width: 100%;
     }
     .patient-schedule{
-        /*display: flex;*/
-        min-width: var(--size-13);
-        min-height: var(--size-9);
-        
+        display: flex;
+        flex-direction: column;
+        min-width: var(--size-8);
+        padding: var(--size-5) var(--size-5);        
         background-color: var(--opacity-black-3);
-        min-width: var(--size-13);
-        padding: var(--size-4);
-        border-radius: var(--size-1);
-        width: 43%;
+        border-radius: var(--size-2);
         text-align: center;
+        gap: var(--size-3);
+        width: 30%;
+        align-items: center;
+        justify-content: center;
     }
     .patient-schedule p {
         margin: 0;
