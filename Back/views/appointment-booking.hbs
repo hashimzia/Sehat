@@ -10,6 +10,8 @@
     // wait for the page to load
     document.addEventListener('DOMContentLoaded', function () {
         fetchProviderDetails();
+        fetchReviews(provider_id);
+
         // listen for chanegs to the calendar-input
         document.getElementById('calendar-input').addEventListener('input', async () => {
             await setTargetDate();
@@ -49,6 +51,32 @@
             ${provider.city}
         </div>
     `;
+    }
+    function renderProviderReviews(reviews){
+        const providerReviews = document.querySelector('.provider-reviews');
+        let rating = reviews.ratings.total_rating / reviews.ratings.total_reviews;
+        // set rating percision to 1 decimal place
+        rating = rating.toFixed(1);
+
+
+        console.log(rating);
+        console.log(reviews);
+        providerReviews.innerHTML = `
+            <h2 class="rating">${rating}/5.0</h2>
+            <h2>Reviews</h2>
+            <div class="review-container">
+                ${reviews.reviews.map(review => {
+                    rating = review.rating.toFixed(1);
+                    
+                    return `
+                        <div class="review">
+                            <p class="rating">${rating}/5.0</p>
+                            <p class="review-text">${review.review}</p>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
     }
 
     function renderSlots(slots) {
@@ -129,6 +157,16 @@
             console.error('Error:', error);
         });
     }
+    function fetchReviews(provider_id){
+        console.log('fetching reviews');    
+        fetch(`/api/getReviews?provider_id=${provider_id}`)
+            .then(response => response.json())
+            .then(data => {
+                renderProviderReviews(data);
+            });
+    }
+
+
 </script>
 
 <div class="page-container appointment-booking-page">
@@ -136,11 +174,22 @@
 
     <h1>Appointment Booking</h1>
 
-    <div class="provider-details">
+    <div style="margin-top: var(--size-4);"></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr">
+        <div class="provider-details" >
+
+        </div>
+
+        <div class="provider-reviews">
+
+        </div>
 
     </div>
-
-    <input type="date" id="calendar-input">
+    <div style=" width: 48rem; display:flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--size-3);">
+        <h2>Schedule an appointment</h2>
+        <input type="date" id="calendar-input" style="width: min-content;">
+    </div>
     
     <div class="slot-container">
 
@@ -150,6 +199,13 @@
 </div>
 
 <style>
+
+    .provider-details{
+        min-width: var(--size-13);
+    }
+    .provider-reviews{
+        min-width: var(--size-13);
+    }   
 
     .specialty {
         font-size: var(--size-4-5);
@@ -161,18 +217,32 @@
         justify-content: flex-start;
         gap: var(--size-1);
     }
+    .rating{
+        color: var(--main-color);
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+    .review{
+        background-color: var(--opacity-black-3);
+        padding: var(--size-1) var(--size-2);
+        border-radius: var(--size-1);
+    }
+    .review .rating{
+        text-align: start;
+    }
 
 
     #confirmation-button{
         display: none;
     }
     .appointment-booking-page {
-        padding: var(--size-6);
+        padding: var(--size-6) var(--size-7);
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        justify-content: flex-start;
+        align-items: flex-start;
         gap: var(--size-3);
     }
 

@@ -349,8 +349,6 @@ app.get('/api/verify-doctor', async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
-
-
 app.post('/api/create-meeting', async (req, res) => {
   let accessToken = await getToken(); // Fetch the access token
   accessToken = accessToken['access_token']
@@ -398,6 +396,10 @@ app.post('/api/create-meeting', async (req, res) => {
     res.status(500).send('Failed to create Zoom meeting');
   }
 });
+app.get('/api/addReview', async (req, res) => {
+  res.render('meeting-end-review');
+})
+
 
 // a review is added to the reviews collection with two identifiers: provider_id and patient_id
 // total rating and total reviews are updated in the healthprovidersratings collection
@@ -409,10 +411,7 @@ app.post('/api/addReview', async (req, res) => {
   
   const patient_id = req.auth.userId;
   const slotId = data.slotId;
-  const slot = BookedSlots.findOne({_id:slotId})
-  if (!slot){
-    return res.status(500).send("Slot not found")
-  }
+  const slot = await BookedSlots.findById(slotId)
   const provider_id_ = slot.provider_id
   
   // create a new review, timestamp(Date.now()) is automatically added 
@@ -434,7 +433,7 @@ app.post('/api/addReview', async (req, res) => {
   }
 
   // update the healthprovidersratings collection
-  const provider_id = data.provider_id;
+  const provider_id = provider_id_;
   // check if the provider already exists in the healthprovidersratings collection
   let updateResult = await HealthProvidersRatings.updateOne({
     provider_id: provider_id  // find the provider with the given provider_id
