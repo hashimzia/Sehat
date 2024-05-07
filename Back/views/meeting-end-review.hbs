@@ -3,7 +3,7 @@
 <div class="page-container meeting-end-review-page">
 
     <div class="wrapper">
-		<h3>Session Review</h3>
+		<h3>Leave a Review</h3>
 		<form action="#">
 			<div class="rating">
 				<input type="number" name="rating" hidden>
@@ -13,9 +13,9 @@
 				<i class='bx bx-star star' style="--i: 3;"></i>
 				<i class='bx bx-star star' style="--i: 4;"></i>
 			</div>
-			<textarea name="opinion" cols="30" rows="5" placeholder="Your opinion..."></textarea>
+			<textarea name="opinion" cols="30" rows="5" placeholder="Your opinion..." id="review-text"></textarea>
 			<div class="btn-group">
-				<button type="submit" class="btn submit">Submit</button>
+				<button type="submit" class="std-button">Submit</button>
 				<button class="btn cancel">Cancel</button>
 			</div>
 		</form>
@@ -46,18 +46,42 @@ allStar.forEach((item, idx)=> {
 		}
 	})
 })
+
+const form = document.querySelector('form');
+form.addEventListener('submit', function(event) {
+	event.preventDefault();
+	submitReview();
+});
+
+function submitReview() {
+	const rating = ratingValue.value
+	const review = document.getElementById('review-text').value
+	
+	const urlParams = new URLSearchParams(window.location.search);
+	const slotId = urlParams.get('slotId');
+
+	const data = {
+		slotId,
+		rating,
+		review
+	}
+
+	fetch('/api/addReview', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(data)
+	})
+
+	// navigate to the dashboard
+	window.location.href = '/';
+
+}
+
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-	font-family: 'Poppins', sans-serif;
-}
-
 :root {
 	--yellow: #FFBD13;
 	--blue: #4383FF;
@@ -68,28 +92,26 @@ allStar.forEach((item, idx)=> {
 	--shadow: 8px 8px 30px rgba(0,0,0,.05);
 }
 
-body {
-	background: var(--light);
+.page-container {
 	display: flex;
-	justify-content: center;
 	align-items: center;
-	min-height: 100vh;
-	padding: 1rem;
+	justify-content: center;
 }
 
 .wrapper {
-	background: var(--white);
-	padding: 2rem;
-	max-width: 576px;
-	width: 100%;
-	border-radius: .75rem;
+	padding: var(--size-7);
+	min-width: var(--size-13);
+	border-radius: var(--size-2);
 	box-shadow: var(--shadow);
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-5);
 	text-align: center;
 }
 .wrapper h3 {
-	font-size: 1.5rem;
+	font-size: var(--size-6);
 	font-weight: 600;
-	margin-bottom: 1rem;
+	margin-bottom: var(--size-2);
     color: var(--main-color);
 }
 .rating {
@@ -129,8 +151,8 @@ body {
 	transform: scale(1.1);
 }
 textarea {
-	width: 100%;
-	background: var(--light);
+	width: 90%;
+	background: var(--opacity-black-4);
 	padding: 1rem;
 	border-radius: .5rem;
 	border: none;

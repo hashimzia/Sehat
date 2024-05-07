@@ -1,4 +1,6 @@
 <script>
+
+
     const searchParams = new URLSearchParams(window.location.search);
     let provider_id = searchParams.get('provider_id')
     //let provider_id;
@@ -8,6 +10,8 @@
     // wait for the page to load
     document.addEventListener('DOMContentLoaded', function () {
         fetchProviderDetails();
+        fetchReviews(provider_id);
+
         // listen for chanegs to the calendar-input
         document.getElementById('calendar-input').addEventListener('input', async () => {
             await setTargetDate();
@@ -40,10 +44,39 @@
     function renderProviderDetails(provider) {
         const providerDetails = document.querySelector('.provider-details');
         providerDetails.innerHTML = `
-        <h2>${provider.first_name} ${provider.last_name} - ${provider.specialty}</h2>
-        <p>City: ${provider.city}</p>
-        <p>Experience: ${provider.years_of_experience} years</p>
+        <h2>${provider.first_name} ${provider.last_name}</h2>
+        <p class="specialty">${provider.specialty}</p>
+        <div class="city" style="display:flex;align-items:center:justify-content:flex-start;gap:var(--size-1);"">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#000000" viewBox="0 0 256 256"><path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path></svg>
+            ${provider.city}
+        </div>
     `;
+    }
+    function renderProviderReviews(reviews){
+        const providerReviews = document.querySelector('.provider-reviews');
+        let rating = reviews.ratings.total_rating / reviews.ratings.total_reviews;
+        // set rating percision to 1 decimal place
+        rating = rating.toFixed(1);
+
+
+        console.log(rating);
+        console.log(reviews);
+        providerReviews.innerHTML = `
+            <h2 class="rating">${rating}/5.0</h2>
+            <h2>Reviews</h2>
+            <div class="review-container">
+                ${reviews.reviews.map(review => {
+                    rating = review.rating.toFixed(1);
+                    
+                    return `
+                        <div class="review">
+                            <p class="rating">${rating}/5.0</p>
+                            <p class="review-text">${review.review}</p>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
     }
 
     function renderSlots(slots) {
@@ -84,6 +117,8 @@
         let local_time = selectedSlot.innerText;
         bookAppointment(provider_id, target_date, start_time, end_time, slot_duration_minutes);
 
+        document.querySelector('#calendar-input').style.display = 'none';
+        document.querySelector('.provider-details').style.display = 'none';
         document.querySelector('.slot-container').innerHTML = ``;
         document.querySelector('#confirmation-button').style.display = 'none';
     
@@ -122,17 +157,40 @@
             console.error('Error:', error);
         });
     }
+    function fetchReviews(provider_id){
+        console.log('fetching reviews');    
+        fetch(`/api/getReviews?provider_id=${provider_id}`)
+            .then(response => response.json())
+            .then(data => {
+                renderProviderReviews(data);
+            });
+    }
+
+
 </script>
+
 <div class="page-container appointment-booking-page">
+
 
     <h1>Appointment Booking</h1>
 
-    <div class="provider-details"></div>
+    <div style="margin-top: var(--size-4);"></div>
 
-    <div id="calendar">
-        <input type="date" id="calendar-input">
+    <div style="display: grid; grid-template-columns: 1fr 1fr">
+        <div class="provider-details" >
+
+        </div>
+
+        <div class="provider-reviews">
+
+        </div>
+
     </div>
-
+    <div style=" width: 48rem; display:flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--size-3);">
+        <h2>Schedule an appointment</h2>
+        <input type="date" id="calendar-input" style="width: min-content;">
+    </div>
+    
     <div class="slot-container">
 
     </div>
@@ -141,16 +199,50 @@
 </div>
 
 <style>
+
+    .provider-details{
+        min-width: var(--size-13);
+    }
+    .provider-reviews{
+        min-width: var(--size-13);
+    }   
+
+    .specialty {
+        font-size: var(--size-4-5);
+        font-style: italic;
+    }
+    .city{
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: var(--size-1);
+    }
+    .rating{
+        color: var(--main-color);
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+    .review{
+        background-color: var(--opacity-black-3);
+        padding: var(--size-1) var(--size-2);
+        border-radius: var(--size-1);
+    }
+    .review .rating{
+        text-align: start;
+    }
+
+
     #confirmation-button{
         display: none;
     }
     .appointment-booking-page {
-        padding: var(--size-6);
+        padding: var(--size-6) var(--size-7);
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        justify-content: flex-start;
+        align-items: flex-start;
         gap: var(--size-3);
     }
 
